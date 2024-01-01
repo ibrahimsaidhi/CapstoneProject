@@ -1,12 +1,13 @@
 const express = require("express");
 // const cors = require("cors");
-const mysql = require("mysql2");
-const WebSocket = require("ws");
-const path = require("path")
+
+
 const app = express();
 const server = require('http').createServer(app);
+const io = require("socket.io")(server, {cors: {origin: "*"}});
 require("dotenv").config();
 
+const mysql = require("mysql2");
 let db_con = mysql.createConnection({
     host: "localhost",
     user: "root",
@@ -24,35 +25,29 @@ db_con.connect((err) => {
   
 module.exports = db_con;
 
-
-//app.use("/",express.static(path.resolve(__dirname, "../public/src")))
-
-
-
-const wsServer = new WebSocket.Server({
-  server: server
-})
-
-wsServer.on("connection", function connection(ws){
-  console.log("New client connected!");
-  ws.on("message", function(message){
-    ws.send("message: ", message);
-  })
-})
-
-
-// app.use(cors);
-// app.use(express.json());
-
-const filePath = path.resolve(__dirname, 'index.html');
-
-app.get("/", (req, res) => {
-  res.sendFile(filePath);
-});
-
-app.listen(process.env.PORT, () => {
+server.listen(process.env.PORT, () => {
   console.log(`Server started on Port ${process.env.PORT}`);
 });
 
 
 
+io.on("connection", function(socket){
+  console.log("Connected! Hello ", socket.id);
+
+  socket.on("message", function(data) {
+    //console.log(data);
+
+    io.emit('message', data);
+    //db_con.query("INSERT INTO message (")
+  })
+});
+
+app.engine('html', require('ejs').renderFile);
+app.set('views', __dirname + '/views');
+app.set('view engine', 'ejs');
+
+const path = require('path');
+
+app.get('/index', (req, res) => {
+    res.render("index");
+});
