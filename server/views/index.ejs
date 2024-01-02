@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
     <script src="https://cdn.socket.io/socket.io-3.0.1.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
     <style>
         body { margin: 0; padding-bottom: 3rem; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
   
@@ -32,8 +34,28 @@
         function sendMessage(){
             var msg = document.getElementById("message");
             socket.emit("message", msg.value);
+            msg.value = "";
             return false;
         }
+
+        $.ajax({
+            url: server + "/messages",
+            method: "GET",
+            success: function(res){
+                console.log(res);
+
+                var messages = document.getElementById("messagesBody");
+
+                var data = JSON.parse(res);
+                for (var a = 0; a < data.length; a++){
+                    var li = document.createElement("li");
+                    li.innerHTML = data[a].message;
+                    messages.appendChild(li);
+                }
+            }
+
+        });
+
         socket.on('message', function(data) {
             var li = document.createElement("li");
             li.innerHTML = data;

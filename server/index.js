@@ -7,12 +7,17 @@ const server = require('http').createServer(app);
 const io = require("socket.io")(server, {cors: {origin: "*"}});
 require("dotenv").config();
 
+app.use(function (req, res, next){
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  next();
+});
+
 const mysql = require("mysql2");
 let db_con = mysql.createConnection({
     host: "localhost",
     user: "root",
     password: 'Itsibby443!',
-    database: ''
+    database: "webapp"
 });
   
 db_con.connect((err) => {
@@ -38,7 +43,11 @@ io.on("connection", function(socket){
     //console.log(data);
 
     io.emit('message', data);
-    //db_con.query("INSERT INTO message (")
+
+    db_con.query("INSERT INTO message (message, timestamp, sender_id, recipient_id, message_type) values ('" + data + "', '2024-01-19 03:14:07', 1, 2, 'regular');", function (error, result) {
+      if (error) throw error;
+      console.log("1 record inserted");
+    });
   })
 });
 
@@ -50,4 +59,12 @@ const path = require('path');
 
 app.get('/index', (req, res) => {
     res.render("index");
+});
+
+app.get("/messages", function(req, res){
+  db_con.query("SELECT * from message", function(error, messages){
+    if (error) throw error;
+    res.end(JSON.stringify(messages));
+    console.log("record received");
+  });
 });
