@@ -1,7 +1,6 @@
 const express = require("express");
 // const cors = require("cors");
 
-
 const app = express();
 const server = require('http').createServer(app);
 const io = require("socket.io")(server, {cors: {origin: "*"}});
@@ -33,8 +32,6 @@ module.exports = db_con;
 server.listen(process.env.PORT, () => {
   console.log(`Server started on Port ${process.env.PORT}`);
 });
-
-
 
 io.on("connection", function(socket){
   console.log("Connected! Hello ", socket.id);
