@@ -17,7 +17,7 @@ const login = (req, res) => {
       
       // Not found
       if (data.length === 0) {
-        return res.status(404).json({ error: "User not found" });
+        return res.status(400).json({ error: "Invalid password or username. Please try again" });
       }
   
       const isPasswordValid = bcrypt.compareSync(
@@ -27,7 +27,7 @@ const login = (req, res) => {
   
         // Bad request
       if (!isPasswordValid) {
-        return res.status(400).json({ error: "Invalid password or username" });
+        return res.status(400).json({ error: "Invalid password or username. Please try again" });
       }
   
       // Generate a JSON Web Token (JWT) with the user's ID
