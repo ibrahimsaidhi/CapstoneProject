@@ -8,7 +8,7 @@ const app = express();
 
 app.use(express.json());
 app.use(cors());
-app.use("/server/auth", authenticationRoutes);
+app.use("/api/auth", authenticationRoutes);
 
 app.get("/", (req, res) => {
     res.json("Hello")
