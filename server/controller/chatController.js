@@ -1,4 +1,4 @@
-const db_con = require('../db');
+const db_con = require('../connections');
 
 // Fetching messages from the database
 exports.getMessages = function(req, res){

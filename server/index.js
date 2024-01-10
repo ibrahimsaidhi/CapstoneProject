@@ -3,7 +3,7 @@ const cors = require("cors");
 const authenticationRoutes =  require("./routes/auth.js");
 const chatRoutes = require("./routes/chat.js")
 const socketHandler = require("./socketHandler");
-const db_con = require("./db");
+const db_con = require("./connections.js");
 const http = require("http");
 require("dotenv").config();
 
@@ -12,7 +12,7 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 app.use("/api/auth", authenticationRoutes);
-app.use("/chat", chatRoutes);
+app.use("/api/chat", chatRoutes);
 
 const server = http.createServer(app);
 
