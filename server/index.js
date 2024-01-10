@@ -3,6 +3,8 @@ const cors = require("cors");
 const mysql = require("mysql2");
 const { Server } = require("socket.io");
 const http = require("http");
+const socketHandler = require("./socketHandler");
+const chatRoutes = require("./chat")
 
 let db_con = mysql.createConnection({
     host: "localhost",
@@ -41,51 +43,9 @@ const io = new Server(server, {
   }
 });
 
-// Handling socket.io connections
-io.on('connection', (socket) => {
-    console.log('a user connected');
-    // Listening for "deliver_message" events from the React App (front-end)
-    socket.on("deliver_message", (messageData) => {
-      const fullMessage = {
-        message: messageData.message,
-        senderId: messageData.senderId,
-        timestamp: messageData.timestamp,
-        recipient_id: 2,
-        message_type: "regular"
-      };
-      // Emitting received message to all connected users
-      io.emit("receive_message", fullMessage)
+app.use("/chat", chatRoutes);
 
-    //   // Insert the message into the database
-    //   const query = `
-    //   INSERT INTO message (message, timestamp, sender_id, recipient_id, message_type)
-    //   VALUES (?, ?, ?, ?, ?);
-    // `;
-
-    // console.log("Attempting to insert:", fullMessage);
-    
-    //  db_con.execute(query, [fullMessage.message, fullMessage.timestamp, fullMessage.senderId, fullMessage.recipient_id, fullMessage.message_type], (error, results) => {
-    //     if (error) {
-    //       return console.error(error.message);
-    //     }
-    //     console.log("Message inserted with ID:", results.insertId);
-    // });
-    })
-    socket.on('disconnect', () => {
-        console.log('user disconnected');
-    });
-});
-
-// Fetching messages from the database
-app.get("/messages", function(req, res){
-  db_con.query("SELECT * from message", function(error, messages){
-    if (error) {
-      return res.status(500).send(error.message);
-    }
-    res.json(messages);
-    console.log("Messages fetched from the database");
-  });
-});
+socketHandler(server, db_con);
 
 server.listen(process.env.PORT, () => {
     console.log(`Server started on Port ${process.env.PORT}`);

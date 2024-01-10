@@ -57,6 +57,11 @@ body {
   align-self: flex-end;
   float: right; 
   margin-left: auto;
+  color: white
+}
+
+.user-message .message-time {
+  color: white;
 }
 
 .opponent-message {
