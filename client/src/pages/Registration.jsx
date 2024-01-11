@@ -48,7 +48,7 @@ const Registration = () => {
       const data = await response.json();
       
       if (response.ok) {
-        navigate('../Chats', { state: data.userId });
+        navigate('../allchats', { state: data.userId });
       }
       else
       {
@@ -82,6 +82,7 @@ const Registration = () => {
       <label htmlFor="showPassword"> Show Password</label><br></br>
 
       <input type="submit" value="Submit"/>
+      <button type="button" onClick={function() {navigate('/login')}}>Login</button> 
     </form>
     </div>
     </div>;

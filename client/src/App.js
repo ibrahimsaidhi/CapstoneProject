@@ -1,17 +1,17 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import LoginPage from './pages/Login'; 
+import AllChatsPage from "./pages/AllChats";
 import RegisterPage from './pages/Registration'; 
 import HomePage from './pages/Home'; 
-import ChatsPage from "./pages/Chats";
 
 function App() {
     return (
       <Router>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="/chats" element={<ChatsPage />} />
+          <Route path="/registration" element={<RegisterPage />} />
+          <Route path="/allchats" element={<AllChatsPage />} />
           <Route path="/" element={<HomePage />} />
         </Routes>
       </Router>
