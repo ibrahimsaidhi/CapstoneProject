@@ -1,0 +1,115 @@
+/**
+ * @author Yash Kapoor (Student ID: 101163338)
+ */
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+  
+.chat-room {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f4f4f4;
+}
+
+.chat-box {
+  width: 400px;
+  height: 600px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-header {
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  text-align: center;
+  font-size: 18px;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+.messages-area {
+  flex-grow: 1;
+  padding: 15px;
+  overflow-y: auto;
+}
+
+.message {
+  margin-bottom: 5px;
+  padding: 10px;
+  border-radius: 5px;
+  max-width: 70%; 
+  word-wrap: break-word;
+  clear: both; 
+}
+
+.user-message {
+  background-color: #007aff;
+  align-self: flex-end;
+  float: right; 
+  margin-left: auto;
+  color: white
+}
+
+.user-message .message-time {
+  color: white;
+}
+
+.opponent-message {
+  background-color: #e5e5ea;
+  align-self: flex-start;
+  float: left; 
+  margin-right: auto; 
+}
+
+.message::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+.chat-footer {
+  display: flex;
+  padding: 10px;
+  background-color: #f2f2f2;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+
+.message-input {
+  flex-grow: 1;
+  padding: 10px;
+  margin-right: 10px;
+  border: 1px solid #ccc;
+  border-radius: 20px;
+  outline: none;
+}
+
+.message-time {
+  font-size: 0.8em;
+  color: #0a0101;
+  margin-top: 5px;
+}
+
+.send-button {
+  padding: 6px 12px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+.send-button:hover {
+  background-color: #0056b3;
+}
+  
