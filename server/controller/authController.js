@@ -1,7 +1,6 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const db_con = require("../connections");
-const user = require("../models/User");
 
 
 const SECRET_KEY = "secretkey";
@@ -80,10 +79,13 @@ const registration = async (req, res)  =>
           else
           {
               //asyncly gets all users with the specifed username
-              usersWithSameUsername =  await user.findByUsername(username);
+              usersWithSameUsername = await db_con.promise().query(
+                `SELECT * FROM webapp.users where username = ?`,[username]);
+              
 
               //asyncly gets all users with the specifed email
-              usersWithSameEmail = await user.findByEmail(email);
+              usersWithSameEmail =await db_con.promise().query(
+                `SELECT * FROM webapp.users where email = ?`,[email]);
               
               //Check if there a user with the same username
               if(Object.keys(usersWithSameUsername[0]).length !== 0)
@@ -105,14 +107,13 @@ const registration = async (req, res)  =>
                   bcrypt.genSalt(10, (err, salt) => {
                       bcrypt.hash(password, salt, async function(err, hash) {
 
-                          //creates new user model using entered data and hashed password
-                          newUser = new user(username, email, name, hash, picture)
-
                           //asyncly inserts a new user row into the database
-                          dataFromInsertingNewUser = await user.create(newUser);
+                          dataFromInsertingNewUser = await db_con.promise().query(
+                            `INSERT INTO webapp.users (username, email, name, password, picture)
+                            VALUES (?, ?, ?, ?, ?)`,[username, email, name, hash, picture]);
 
                           res.status(201).json({
-                              userId: dataFromInsertingNewUser.insertId,
+                              userId: dataFromInsertingNewUser[0].insertId,
                           });
                       
                       });
