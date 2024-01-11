@@ -112,6 +112,14 @@ const registration = async (req, res)  =>
                             `INSERT INTO webapp.users (username, email, name, password, picture)
                             VALUES (?, ?, ?, ?, ?)`,[username, email, name, hash, picture]);
 
+                          // Generate a JSON Web Token (JWT) with the user's ID
+                          const token = jwt.sign({ id: dataFromInsertingNewUser[0].insertId }, SECRET_KEY);
+                          
+                          // Set the JWT as an HTTP-only cookie for added security
+                          res.cookie("accessToken", token, {
+                            httpOnly: true,
+                          });
+
                           res.status(201).json({
                               userId: dataFromInsertingNewUser[0].insertId,
                           });
