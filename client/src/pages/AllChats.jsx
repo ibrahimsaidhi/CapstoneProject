@@ -1,11 +1,9 @@
-import { useLocation } from "react-router-dom";
+import React from 'react'
 
-//Page that will display the chats. Temp add for now, will be replaced
-const Chats = () => {
-    
-    const { state } = useLocation();
+function AllChats() {
+  return (
+    <div>Chats will load here </div>
+  )
+}
 
-    return <h1>Chats, Current user is {state} </h1>;
-  };
-  
-  export default Chats;
+export default AllChats
