@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const authenticationRoutes =  require("./routes/auth.js");
 const chatRoutes = require("./routes/chat.js")
+const contactsRoutes = require("./routes/contacts.js");
 const socketHandler = require("./socketHandler");
 const db_con = require("./connections.js");
 const http = require("http");
@@ -27,6 +28,7 @@ app.use(cors(corsOptions));
 app.use(cookieParser());
 app.use("/api/auth", authenticationRoutes);
 app.use("/api/chat", chatRoutes);
+app.use("/api/contacts", contactsRoutes);
 
 const server = http.createServer(app);
 
