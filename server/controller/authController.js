@@ -2,8 +2,11 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const db_con = require("../connections");
 
-
+//Todo Need to be refactored into env file, with a proper hexadecimal key
 const SECRET_KEY = "secretkey";
+
+//Expiration time of the cookie which is 10 minutes in seconds
+const cookieExp = 60 * 10;
 
 //Add function for register and logout
 
@@ -32,7 +35,7 @@ const login = (req, res) => {
       }
   
       // Generate a JSON Web Token (JWT) with the user's ID
-      const token = jwt.sign({ id: data[0].id }, SECRET_KEY);
+      const token = jwt.sign({ id: data[0].user_id }, SECRET_KEY, {expiresIn: cookieExp});
   
       // Extract sensitive information (like password) before sending the response
       const { password, ...userInfo } = data[0];
@@ -40,6 +43,7 @@ const login = (req, res) => {
       // Set the JWT as an HTTP-only cookie for added security
       res.cookie("accessToken", token, {
         httpOnly: true,
+        maxAge: cookieExp * 1000,
       });
   
       // Send a successful response with user information (excluding password)
@@ -105,25 +109,25 @@ const registration = async (req, res)  =>
               {
                   //Bcrypt hashing of the password entered
                   bcrypt.genSalt(10, (err, salt) => {
-                      bcrypt.hash(password, salt, async function(err, hash) {
-
+                      bcrypt.hash(password, salt, async function(err, hash) 
+                      {
                           //asyncly inserts a new user row into the database
                           dataFromInsertingNewUser = await db_con.promise().query(
                             `INSERT INTO webapp.users (username, email, name, password, picture)
                             VALUES (?, ?, ?, ?, ?)`,[username, email, name, hash, picture]);
 
                           // Generate a JSON Web Token (JWT) with the user's ID
-                          const token = jwt.sign({ id: dataFromInsertingNewUser[0].insertId }, SECRET_KEY);
-                          
+                          const token = jwt.sign({ id: dataFromInsertingNewUser[0].insertId}, SECRET_KEY, {expiresIn: cookieExp});
+
                           // Set the JWT as an HTTP-only cookie for added security
                           res.cookie("accessToken", token, {
                             httpOnly: true,
+                            maxAge: cookieExp * 1000,
                           });
 
                           res.status(201).json({
                               userId: dataFromInsertingNewUser[0].insertId,
                           });
-                      
                       });
                   })
               }
@@ -131,9 +135,10 @@ const registration = async (req, res)  =>
       }
       catch(err)
       {
-          res.status(500).json({
-              message: "Registration could not be processed due to an internal error. Please try again",
-          });
+        console.log(err);
+        res.status(500).json({
+            message: "Registration could not be processed due to an internal error. Please try again",
+        });
       }
       
   };

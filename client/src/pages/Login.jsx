@@ -7,6 +7,12 @@ function Login() {
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  
+  //allows cookies to be saved to browser and sent in future request
+  const api = axios.create({
+    baseURL: "http://localhost:5000/api",
+    withCredentials: true,  
+  });
 
   const navigate = useNavigate();
 
@@ -20,7 +26,7 @@ function Login() {
     };
 
     // Make the POST request
-    axios.post('http://localhost:5000/api/auth/login', userData)
+    api.post('/auth/login', userData)
       .then((response) => {
         console.log(response.data);
         // successful login

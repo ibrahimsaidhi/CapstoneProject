@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import '../styles/Registration.css';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 /**
  * TODO need to display password requirement, make display look better, potentialy add
@@ -11,6 +12,12 @@ const Registration = () => {
   const navigate = useNavigate();
   const [passwordType, setPasswordType] = useState("password");
   const [formData, setFormData] = useState({username: "", email: "", name: "", password: "", picture: "/path/pic1"});
+  
+  //allows cookies to be saved to browser and sent in future request
+  const api = axios.create({
+    baseURL: "http://localhost:5000/api",
+    withCredentials: true,  
+  });
   
   //Handle input change for each field. Sets input text to appropriate property for formData
   const handleChange = (event) => {
@@ -33,33 +40,25 @@ const Registration = () => {
    * Handles submiting the form. Calls on /registation/create post method and moves user
    * to new page with thier user id if registartion is valid or alerts them if not
   **/
-  const handleSubmit = async (event) => 
+  const handleSubmit = (event) => 
   {
     event.preventDefault();
-    const requestOptions = {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(formData)
-    };
 
-    try {
-      
-      const response = await fetch('http://localhost:5000/api/auth/registration/', requestOptions);
-      const data = await response.json();
-      
-      if (response.ok) {
-        navigate('../allchats', { state: data.userId });
-      }
-      else
-      {
-        alert("Registration failed. " +data.message);
-      }
-    } 
-    catch (error) {
-      alert("Registration failed due to server error");
-      console.log(error);
-    }
-    
+    // Make the POST request
+    api.post('/auth/registration/', formData)
+        .then((response) => {
+          navigate('../allchats');
+        })
+        .catch((error) => {
+          console.log(error);
+          if (error.response.status === 400)
+          {
+            alert("Registration failed. " +error.response.data.message);
+          }
+          else{
+            alert("Registration failed due to server error");
+          }
+        });
   };
 
   return <div className="background">
