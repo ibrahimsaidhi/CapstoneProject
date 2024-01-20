@@ -1,16 +1,16 @@
 import React, { useState } from "react";
 import '../styles/Registration.css';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 
 /**
- * TODO need to display password requirement, make display look better, potentialy add
- * field to renter password
+ *  Potential TODO add field to re-enter password, and maybe add an icon to right side of password field to show passowrd 
  **/
 
 const Registration = () => {
   const navigate = useNavigate();
   const [passwordType, setPasswordType] = useState("password");
+  const [errorMessage, seterrorMessage] = useState("");
   const [formData, setFormData] = useState({username: "", email: "", name: "", password: "", picture: "/path/pic1"});
   
   //allows cookies to be saved to browser and sent in future request
@@ -23,6 +23,7 @@ const Registration = () => {
   const handleChange = (event) => {
     const { name, value } = event.target;
     setFormData((prevFormData) => ({ ...prevFormData, [name]: value }));
+    seterrorMessage("");
   };
 
   /**
@@ -47,44 +48,37 @@ const Registration = () => {
     // Make the POST request
     api.post('/auth/registration/', formData)
         .then((response) => {
+          alert("Sign Up Is Successful");
           navigate('../allchats');
         })
         .catch((error) => {
           console.log(error);
-          if (error.response.status === 400)
+          if (error.response.status === 400 || 500)
           {
-            alert("Registration failed. " +error.response.data.message);
+            seterrorMessage(error.response.data.message);
           }
           else{
-            alert("Registration failed due to server error");
+            seterrorMessage("Registration failed due to server error. Please try again.");
           }
         });
   };
 
   return <div className="background">
-      <div className="registrationSquare"> 
-      <form onSubmit={handleSubmit}>
-
-      <label htmlFor="name">Name:</label><br/>
-      <input type="text" id="name" name="name" placeholder="Name" onChange={handleChange} required/><br/>
-      
-      <label htmlFor="email">Email:</label><br/>
-      <input type="email" id="email" name="email" placeholder="Email" onChange={handleChange} required/><br/>
-
-      <label htmlFor="username">Username:</label><br/>
-      <input type="text" id="username" name="username" placeholder="Username" onChange={handleChange} required/><br/>
-
-      <label htmlFor="password">Password:</label><br/>
-      <input type={passwordType} id="password" name="password" placeholder="Password"   onChange={handleChange} required/><br/>
-
-      <input type="checkbox" onChange={() => showPassword()} id="showPassword" name="showPassword" value="showPassword"/>
-      <label htmlFor="showPassword"> Show Password</label><br></br>
-
-      <input type="submit" value="Submit"/>
-      <button type="button" onClick={function() {navigate('/login')}}>Login</button> 
-    </form>
-    </div>
-    </div>;
+            <div className="registrationSquare"> 
+              <h1> Sign Up</h1> 
+              <form className="registrationForm" onSubmit={handleSubmit}>
+                <input type="text" id="name" name="name" placeholder="Name" onChange={handleChange} required/><br/>
+                <input type="email" id="email" name="email" placeholder="Email" onChange={handleChange} required/><br/>
+                <input type="text" id="username" name="username" placeholder="Username" onChange={handleChange} required/><br/>
+                <input type={passwordType} id="password" name="password" placeholder="Password"   onChange={handleChange} required/><br/> 
+                <input type="checkbox" onChange={() => showPassword()} id="showPassword" name="showPassword" value="showPassword"/>
+                <label htmlFor="showPassword"> Show Password</label> <br/>
+                {errorMessage && <p className="errorText">{errorMessage}</p>}
+                <input type="submit" value="Sign Up"/>
+              </form>
+              <p> Already have an account? <Link to="../login" >Sign in now </Link> </p>
+          </div>
+        </div>;
       
   };
   
