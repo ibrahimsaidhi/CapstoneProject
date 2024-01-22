@@ -69,69 +69,66 @@ const registration = async (req, res)  =>
           //Check if any of the the required fields are empty
           if(!username || !email ||!name || !password || !picture)
           {
-              res.status(400).json({
-                  message: "The fields can't be empty",
+              return res.status(400).json({
+                  message: "None of the input fields can be empty. Please try again",
               });
           }
+          
+          //asyncly gets all users with the specifed email
+          usersWithSameEmail =await db_con.promise().query(
+            `SELECT * FROM webapp.users where email = ?`,[email]);
+        
+          //Check if there a user with the same email
+          if(Object.keys(usersWithSameEmail[0]).length !== 0)
+          {
+              return res.status(400).json({
+                  message: "There is already an account associated with that email. Please enter a different email",
+              });
+          }   
+          
+          //asyncly gets all users with the specifed username
+          usersWithSameUsername = await db_con.promise().query(
+            `SELECT * FROM webapp.users where username = ?`,[username]);
+          
+           //Check if there a user with the same username
+          if(Object.keys(usersWithSameUsername[0]).length !== 0)
+          {
+              return res.status(400).json({
+                  message: "Someone already has this username. Please enter a different username",
+              });
+          }
+          
           //Check if password is invalid
-          else if (isPlaintextPasswordInvalid(password))
+          if (isPlaintextPasswordInvalid(password))
           {
-              res.status(400).json({
-                  message: "Password entered is invalid, please enter a different password",
+              return res.status(400).json({
+                  message: "Password must be at least 8 characters and must include at least one upper-case letter, one lower-case letter, one numerical digit and one special character",
               });
           }
-          else
-          {
-              //asyncly gets all users with the specifed username
-              usersWithSameUsername = await db_con.promise().query(
-                `SELECT * FROM webapp.users where username = ?`,[username]);
-              
-
-              //asyncly gets all users with the specifed email
-              usersWithSameEmail =await db_con.promise().query(
-                `SELECT * FROM webapp.users where email = ?`,[email]);
-              
-              //Check if there a user with the same username
-              if(Object.keys(usersWithSameUsername[0]).length !== 0)
+          
+          //Bcrypt hashing of the password entered
+          bcrypt.genSalt(10, (err, salt) => {
+              bcrypt.hash(password, salt, async function(err, hash) 
               {
-                  res.status(400).json({
-                      message: "Username already exist, please enter a different one",
+                  //asyncly inserts a new user row into the database
+                  dataFromInsertingNewUser = await db_con.promise().query(
+                    `INSERT INTO webapp.users (username, email, name, password, picture)
+                    VALUES (?, ?, ?, ?, ?)`,[username, email, name, hash, picture]);
+
+                  // Generate a JSON Web Token (JWT) with the user's ID
+                  const token = jwt.sign({ id: dataFromInsertingNewUser[0].insertId}, SECRET_KEY, {expiresIn: cookieExp});
+
+                  // Set the JWT as an HTTP-only cookie for added security
+                  res.cookie("accessToken", token, {
+                    httpOnly: true,
+                    maxAge: cookieExp * 1000,
                   });
-              }
-              //Check if there a user with the same email
-              else if(Object.keys(usersWithSameEmail[0]).length !== 0)
-              {
-                  res.status(400).json({
-                      message: "There is already an account associated with that email, please enter a different one",
+
+                  res.status(201).json({
+                      userId: dataFromInsertingNewUser[0].insertId,
                   });
-              }
-              else
-              {
-                  //Bcrypt hashing of the password entered
-                  bcrypt.genSalt(10, (err, salt) => {
-                      bcrypt.hash(password, salt, async function(err, hash) 
-                      {
-                          //asyncly inserts a new user row into the database
-                          dataFromInsertingNewUser = await db_con.promise().query(
-                            `INSERT INTO webapp.users (username, email, name, password, picture)
-                            VALUES (?, ?, ?, ?, ?)`,[username, email, name, hash, picture]);
-
-                          // Generate a JSON Web Token (JWT) with the user's ID
-                          const token = jwt.sign({ id: dataFromInsertingNewUser[0].insertId}, SECRET_KEY, {expiresIn: cookieExp});
-
-                          // Set the JWT as an HTTP-only cookie for added security
-                          res.cookie("accessToken", token, {
-                            httpOnly: true,
-                            maxAge: cookieExp * 1000,
-                          });
-
-                          res.status(201).json({
-                              userId: dataFromInsertingNewUser[0].insertId,
-                          });
-                      });
-                  })
-              }
-          }
+              });
+          })
       }
       catch(err)
       {
@@ -145,15 +142,24 @@ const registration = async (req, res)  =>
 
 
 /**
- * TODO Need to be implemented.
- * Checks if the plain text password is invalid based off bussiness rules
+ * Checks if the plain text password is invalid based off bussiness rules. An invalid password is a passowrd that is not at least 8 characters and doesnt contain at
+ * least one upper-case letter, one lower-case letter, one numerical digit and one special character.
  * 
  * @param {*} password      the password to be checked      
  * @returns                 boolean, true if password is valid; false otherwise
  */
 function isPlaintextPasswordInvalid(password)
 {
-    return false;
+  if((password.length >= 8) && (/[A-Z]/.test(password)) && (/[a-z]/.test(password)) && (/[0-9]/.test(password)) 
+    && (/[!@#$%^&*()\-+={}[\]:;"'<>,.?\/|\\]/.test(password)))
+  {
+    return false; 
+  }
+  else
+  {
+    return true;
+  }
+    
 }
 
 module.exports = {login, registration};
