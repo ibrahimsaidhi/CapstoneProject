@@ -3,13 +3,15 @@ const cors = require("cors");
 const authenticationRoutes =  require("./routes/auth.js");
 const chatRoutes = require("./routes/chat.js")
 const contactsRoutes = require("./routes/contacts.js");
+const allChatsRoutes = require("./routes/allChats.js");
+const userRoutes = require("./routes/users.js")
 const socketHandler = require("./socketHandler");
 const db_con = require("./connections.js");
 const http = require("http");
 const cookieParser = require("cookie-parser");
 require("dotenv").config();
 
-//Enable CORS to accept the jwt cookie for api calls
+// Enable CORS to accept the jwt cookie for api calls
 const corsOptions = {
     origin: "http://localhost:3000",
     credentials: true,
@@ -27,8 +29,10 @@ app.use(express.json());
 app.use(cors(corsOptions));
 app.use(cookieParser());
 app.use("/api/auth", authenticationRoutes);
-app.use("/api/chat", chatRoutes);
+app.use("/api/messages", chatRoutes);
 app.use("/api/contacts", contactsRoutes);
+app.use("/api/chats", allChatsRoutes);
+app.use("/api/user", userRoutes);
 
 const server = http.createServer(app);
 
