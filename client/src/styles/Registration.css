@@ -57,6 +57,12 @@
     border-radius: 4px;
     box-sizing: border-box;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    cursor: pointer;
+  }
+
+  .registrationForm > :is(input[type=checkbox], label)
+  {
+    cursor: pointer;
   }
 
   .registrationForm
