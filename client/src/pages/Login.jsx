@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import '../styles/login.css';
+
 
 function Login() {
   const [username, setUsername] = useState('');
@@ -53,7 +55,7 @@ function Login() {
       <form onSubmit={handleSubmit}>
         <div>
           <label>
-            Username:
+            Username:&nbsp;
             <input
               type="text"
               value={username}
@@ -62,9 +64,10 @@ function Login() {
             />
           </label>
         </div>
+        <br/>
         <div>
           <label>
-            Password:
+            Password:&nbsp;
             <input
               type="password"
               value={password}
@@ -73,9 +76,10 @@ function Login() {
             />
           </label>
         </div>
+        <br/>
         <div>
-          <button type="submit">Login</button>
-          <button type="button" onClick={handleRegister}>Register</button>
+          <button class="loginButton" type="submit">Login</button>&nbsp;
+          <button class="registerButton" type="button" onClick={handleRegister}>Register</button>
         </div>
       </form>
       {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}

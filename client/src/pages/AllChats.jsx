@@ -133,7 +133,7 @@ const AllChats = () => {
               {contacts.map(contact => (
                 <li key={contact.user_id} className="contact-item">
                   <div className="contact-name">{contact.username}</div>
-                  <button onClick={() => startChat(contact.user_id)}>Start Chat</button>
+                  <button class="chatButton" onClick={() => startChat(contact.user_id)}>Start Chat</button>
                 </li>
               ))}
             </ul>
@@ -146,7 +146,7 @@ const AllChats = () => {
   return (
     <div>
       <h1>Your Chats</h1>
-      <button onClick={handleNewChat}>New Chat</button>
+      <button class="chatButton" onClick={handleNewChat}>New Chat</button>
       <ContactsModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}

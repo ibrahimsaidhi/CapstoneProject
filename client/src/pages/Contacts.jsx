@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from 'axios';
+import '../styles/contacts.css';
 
 
 //Page that will display the user contacts. Temp code added for now just to test contacts backend, will be replaced soon
@@ -99,20 +100,20 @@ function Contacts() {
               placeholder="search for user"
               onChange={handleChangeSearch}
               value={searchInput} />
-              <button type="button" onClick={searchForUsers}>Search</button>
+              <button class="searchButton" type="button" onClick={searchForUsers}>Search</button>
               {!searchResults ? <p> No Search </p> : <div> <p> search results: </p> <ul>{searchResults}</ul> </div>} 
               <input
               type="search"
               placeholder="add contact by id"
               onChange={handleChangeAdd}
               value={userAdd} />
-              <button type="button" onClick={addToContacts}>Add</button>
+              <button class="addButton" type="button" onClick={addToContacts}>Add</button>
               <input
               type="search"
               placeholder="remove contact by id"
               onChange={handleChangeRemove}
               value={userRemove} />
-              <button type="button" onClick={removeFromContacts}>Remove</button>
+              <button class="removeButton" type="button" onClick={removeFromContacts}>Remove</button>
               {!data ? <p> loading all contacts </p> : <div> <p> Contact: </p> <ul>{data}</ul> </div>} 
             </div>;
   };
