@@ -26,6 +26,7 @@ function Login() {
 
     api.post('/auth/login', userData)
       .then((response) => {
+        sessionStorage.setItem("name", response.data.name)
         setErrorMessage('');
         setSuccessMessage('Login successful!');
         setTimeout(() => navigate('/'), 1000);
