@@ -5,3 +5,99 @@
 .loginButton {
     cursor: pointer;
 }
+
+/**Need to make changes to only affect login page for non class elements**/
+
+
+.loginSquare > :is(h1, h2, p, label)
+{
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+}
+
+
+.background {
+    background: radial-gradient(circle, rgba(34,193,195,1) 0%, rgba(37,170,212,1) 48%, rgba(45,112,253,1) 100%);
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .loginSquare {
+    background: rgb(34,193,195);
+    background: rgba(255, 255, 255);
+    
+    border: 2px solid none;
+    border-radius: 5px;
+
+    width: 70vh;
+    max-width: 90vw;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px, 0px;
+
+     /**
+    For phones maybe
+    min-width: 300px;
+    min-height: 500px;
+    **/
+  }
+
+  .loginSquare > h1 {
+    font-size: 1.875rem;
+    color:#313131;
+    line-height: 1.2;
+    font-weight: 500;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+
+
+  .loginForm > :is(input[type=text], input[type=email], input[type=password], input[type=submit]) {
+    width: 100%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    display: inline-block;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    cursor: pointer;
+  }
+
+  .loginForm > :is(input[type=checkbox], label)
+  {
+    cursor: pointer;
+  }
+
+  .loginForm
+  {
+      width: 95%;
+  }
+
+  .loginForm > input[type=submit]:hover{
+    color: white;
+    background: rgb(34,193,195);
+   }
+
+   .errorText
+   {
+    color: red;
+   }
+
+   @media screen and (max-height: 600px) {
+    .loginForm > :is(input[type=text], input[type=email], input[type=password], input[type=submit]) {
+      width: 100%;
+      padding: 8px 20px;
+      margin: 4px 0;
+      display: inline-block;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+  }
