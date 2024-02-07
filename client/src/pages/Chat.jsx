@@ -26,7 +26,7 @@ const Chat = ({socket}) => {
     const location = useLocation();
     const chatId = location.state?.chatId;
     const recipientId = location.state?.contactId;
-
+    
     /**
      * Scrolls automatically to the bottom of the top every time a message is sent
      */
@@ -109,9 +109,34 @@ const Chat = ({socket}) => {
     }
 
     /**
+     * Fetches the current status for this particular chat
+     * 
+     * @returns             the status of the current chat 
+     */
+    const fetchChatStatus = async () => {
+        try {
+            const response = await axios.get(`http://localhost:5000/api/chats/${chatId}/status`, { withCredentials: true });
+            return response.data.chatStatus;
+    
+        } catch (error) {
+            console.error("Error fetching messages: ", error);
+        }
+    }
+
+    /**
      * Delivers the message over the socket to other users
      */
     const deliverMessage = async () => {
+
+        //Fetch the current status of the chat
+        const chatStatus = await fetchChatStatus();
+
+        //Check before delivering message that if chat is currently inactive, no message is sent
+        if (chatStatus === "inactive")
+        {
+            return alert("Unable to send message to somone not in your contacts list");
+        }
+        
         if (messageSent !== "") {
             const timestamp = new Date().toISOString().slice(0, 19).replace('T', ' ');
             const messageData = {
@@ -124,7 +149,7 @@ const Chat = ({socket}) => {
             await socket.emit("deliver_message", messageData);
             setMessageSent("");
         }
-    }
+            }
 
     /**
      * Allows the user to press "Enter" to send a message

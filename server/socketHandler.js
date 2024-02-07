@@ -66,7 +66,7 @@ const socketHandler = (server, db_con) => {
       } else {
           // Create a new chat session
           console.log("No existing chat session found. Creating a new one.");
-          const newChatQuery = `INSERT INTO chat (message_id, chat_type) VALUES (?, 'one-on-one')`;
+          const newChatQuery = `INSERT INTO chat (message_id, chat_type, status) VALUES (?, 'one-on-one', 'active')`;
           db_con.execute(newChatQuery, [messageId], (newChatError, newChatResults) => {
             if (newChatError) {
               return console.error(newChatError.message);

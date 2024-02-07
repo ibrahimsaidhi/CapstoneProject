@@ -65,13 +65,15 @@ const AllChats = () => {
    */
   const fetchData = async (userId) => {
     try {
-      const contactsResponse = await api.get('/contacts/all');
+      const contactsResponse = await api.get('/contacts/all?type=friends');
+      const nonContactsResponse = await api.get('/contacts/all?type=non-friends');
       const chatsResponse = await api.get(`/chats/${userId}`);
       if (contactsResponse.data.users && chatsResponse.data.chats) {
         const updatedChats = chatsResponse.data.chats.map(chat => {
           const otherUserId = chat.sender_id === userId ? chat.recipient_id : chat.sender_id;
           const contact = contactsResponse.data.users.find(user => user.user_id === otherUserId);
-          return { ...chat, recipient_username: contact ? contact.username : 'Unknown' };
+          const nonContact = nonContactsResponse.data.users.find(user => user.user_id === otherUserId);
+          return { ...chat, recipient_username: contact ? contact.username : nonContact.username };
         });
         setChats(updatedChats);
         setContacts(contactsResponse.data.users);
