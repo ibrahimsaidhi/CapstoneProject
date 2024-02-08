@@ -8,7 +8,6 @@ const SECRET_KEY = "secretkey";
 //Expiration time of the cookie which is 10 minutes in seconds
 const cookieExp = 60 * 10;
 
-//Add function for register and logout
 
 const login = (req, res) => {
 
@@ -162,4 +161,16 @@ function isPlaintextPasswordInvalid(password)
     
 }
 
-module.exports = {login, registration};
+
+const logout = (req, res) => {
+  // Clear the HTTP-only cookie by setting its expiration date to the past
+  res.cookie("accessToken", "", {
+    httpOnly: true,
+    expires: new Date(0)
+  });
+
+  // Send a successful response indicating the user has been logged out
+  res.status(200).json({ message: "Logout successful." });
+};
+
+module.exports = { login, registration, logout };
