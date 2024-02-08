@@ -1,0 +1,46 @@
+const db_con = require('../connections');
+
+/**
+ * Creates the one-on-one chat by by inserting 
+ * the appropriate values in the "chat" table and
+ * the participants that are in the one-on-one chat in the "participants" table in the database.
+ * @param {Object} req - The request object received from the client
+ * @param {Object} res - The response object that sends back data to the client 
+ * @returns    appropriate response status to indicate whether the group chat was created successfully
+ */
+async function createOneOnOneChat(req, res) {
+    const { chatName, userIds } = req.body;
+    
+    db_con.beginTransaction(async err => {
+        console.log("Transaction beginning");
+        if (err) { 
+            return res.status(500).json({ message: 'Failed to create One-on-one chat', error: err.message });
+        }
+        
+        try {
+            const insertChatResult = await db_con.promise().query(
+                'INSERT INTO chat (name, chat_type, status) VALUES (?, ?, ?)',
+                [chatName, 'one-on-one', 'active']
+            );
+            
+            const chatId = insertChatResult[0].insertId;
+
+            for (const userId of userIds) {
+                await db_con.promise().query(
+                    'INSERT INTO chat_participants (chat_id, user_id) VALUES (?, ?)',
+                    [chatId, userId]
+                );
+            }
+            
+            db_con.commit(() => {
+                res.status(201).json({ message: 'One-on-one chat created successfully', chatId });
+            });
+        } catch (error) {
+            db_con.rollback(() => {
+                res.status(500).json({ message: 'Failed to create One-on-one chat', error: error.message });
+            });
+        }
+    });
+}
+
+module.exports = { createOneOnOneChat };
