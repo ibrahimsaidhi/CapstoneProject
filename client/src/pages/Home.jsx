@@ -7,26 +7,51 @@ import '../styles/home.css';
 function Home() {
 
   const navigate = useNavigate();
-  
   const [fullName, setFullName] = useState('');
-  useEffect (()=>{setFullName(sessionStorage.getItem("name"))});
+
 
   const api = axios.create({
     baseURL: "http://localhost:5000/api",
     withCredentials: true,  
   });
 
-const handleLogout = () => {
-  api.post('/auth/logout')
-    .then(response => {
-      alert(response.data.message); 
-      sessionStorage.removeItem("name");
-      setTimeout(() => navigate('/login'), 1000);
-    })
-    .catch(error => {
-      console.error('Logout failed:', error);
-    });
-};
+
+  useEffect(() => {
+    // Check if token is present in session storage
+    const token = sessionStorage.getItem("token");
+    if (!token) {
+      // If token is not present, redirect to login page
+      console.log("No token. Redirecting to login");
+      navigate('/login');
+    } else {
+      api.post('/auth/refreshAccessToken')
+        .then(response => {
+          setFullName(sessionStorage.getItem("name"));
+        })
+        .catch(error => {
+          // If token verification fails, remove token and redirect to login page
+          console.error('Token verification failed:', error);
+          alert(error);
+          sessionStorage.removeItem("token");
+          navigate('/login');
+        });
+    }
+  }, [navigate]);
+
+
+
+  const handleLogout = () => {
+    api.post('/auth/logout')
+      .then(response => {
+        alert(response.data.message); 
+        sessionStorage.removeItem("name");
+        sessionStorage.removeItem("token");
+        setTimeout(() => navigate('/login'), 1000);
+      })
+      .catch(error => {
+        console.error('Logout failed:', error);
+      });
+  };
 
 
   return (
