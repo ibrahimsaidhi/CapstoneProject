@@ -43,8 +43,8 @@ const socketHandler = (server, db_con) => {
 
       handleChats(fullMessage, db_con);
       if (messageData.chatType === "one-on-one") {
-        // Emitting received message to all connected users for a one-on-one chat
-        io.emit("receive_message", fullMessage);
+        // Emitting message only to sockets in the room corresponding to the chatId
+        io.to(messageData.chatId).emit("receive_message", fullMessage);
       } else if (messageData.chatType === "group") {
         // Emitting message to participants in a specific group
         emitMessageToGroup(fullMessage, io, db_con);

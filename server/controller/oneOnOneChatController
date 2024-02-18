@@ -17,15 +17,19 @@ async function createOneOnOneChat(req, res) {
         // Begin transaction
         await db_con.promise().beginTransaction();
 
-        // Check if a chat already exists between these two users
+        // Check if a one-on-one chat already exists between these two users
         const [existingChatCheckResult] = await db_con.promise().query(
-            `SELECT chat_id FROM chat_participants WHERE user_id IN (?, ?)
-                GROUP BY chat_id HAVING COUNT(DISTINCT user_id) = 2`,
+            `SELECT c.chat_id FROM chat c
+            JOIN chat_participants cp ON c.chat_id = cp.chat_id
+            WHERE c.chat_type = "one-on-one"
+            AND cp.user_id IN (?, ?)
+            GROUP BY c.chat_id
+            HAVING COUNT(DISTINCT cp.user_id) = 2`,
             userIds
         );
 
         if (existingChatCheckResult.length > 0) {
-            // A chat already exists, so we return its ID instead of creating a new one.
+            // A one-on-one chat already exists, so we return its ID instead of creating a new one.
             const existingChatId = existingChatCheckResult[0].chat_id;
             // Rollback transaction because we're not proceeding with chat creation
             await db_con.promise().rollback();
