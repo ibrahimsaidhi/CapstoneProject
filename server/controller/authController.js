@@ -8,7 +8,6 @@ const SECRET_KEY = "secretkey";
 //Expiration time of the cookie which is 10 minutes in seconds
 const cookieExp = 60 * 10;
 
-//Add function for register and logout
 
 const login = (req, res) => {
 
@@ -47,7 +46,7 @@ const login = (req, res) => {
       });
   
       // Send a successful response with user information (excluding password)
-      res.status(200).json(userInfo);
+      res.status(200).json({userInfo, token});
     });
   };
 
@@ -115,15 +114,6 @@ const registration = async (req, res)  =>
                     `INSERT INTO webapp.users (username, email, name, password, picture)
                     VALUES (?, ?, ?, ?, ?)`,[username, email, name, hash, picture]);
 
-                  // Generate a JSON Web Token (JWT) with the user's ID
-                  const token = jwt.sign({ id: dataFromInsertingNewUser[0].insertId}, SECRET_KEY, {expiresIn: cookieExp});
-
-                  // Set the JWT as an HTTP-only cookie for added security
-                  res.cookie("accessToken", token, {
-                    httpOnly: true,
-                    maxAge: cookieExp * 1000,
-                  });
-
                   res.status(201).json({
                       userId: dataFromInsertingNewUser[0].insertId,
                   });
@@ -160,6 +150,33 @@ function isPlaintextPasswordInvalid(password)
     return true;
   }
     
-}
+};
 
-module.exports = {login, registration};
+
+const logout = (req, res) => {
+  // Clear the HTTP-only cookie by setting its expiration date to the past
+  res.cookie("accessToken", "", {
+    httpOnly: true,
+    expires: new Date(0)
+  });
+
+  // Send a successful response indicating the user has been logged out
+  res.status(200).json({ message: "Logout successful." });
+};
+
+
+
+const refreshAccessToken = (req, res) => {
+
+  const token = req.headers.authorization || req.cookies.accessToken || req.query.token;
+
+  // Reset the timer everytime there is activity
+  res.cookie("accessToken", token, {
+    httpOnly: true,
+    maxAge: cookieExp * 1000,
+  });
+
+  res.status(200).json({ message: "Access token refreshed successfully" });
+};
+
+module.exports = { login, registration, logout, refreshAccessToken };
