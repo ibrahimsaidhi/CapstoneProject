@@ -50,7 +50,16 @@ const Chat = ({socket}) => {
                 socket.emit("join_chat", chatId);
             }
         });
-    }, [chatId, socket]); 
+
+        return () => {
+            if (chatId) {
+                // Emitting the leave_chat event when the 
+                // component unmounts or dependencies change
+                socket.emit("leave_chat", chatId);
+                console.log(`User with ID ${userId} is leaving chat ${chatId}`);
+            }
+        }
+    }, [chatId, socket, userId]); 
     
 
     useEffect(() => {

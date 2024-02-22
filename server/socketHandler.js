@@ -51,6 +51,11 @@ const socketHandler = (server, db_con) => {
       }
     });
 
+    socket.on("leave_chat", (chatId) => {
+      socket.leave(chatId);
+      console.log(`Socket ${socket.id} left chat ${chatId}`);
+    });
+
     socket.on('disconnect', () => {
       console.log('user disconnected');
     });
