@@ -4,7 +4,9 @@ const authenticationRoutes =  require("./routes/auth.js");
 const chatRoutes = require("./routes/chat.js")
 const contactsRoutes = require("./routes/contacts.js");
 const allChatsRoutes = require("./routes/allChats.js");
-const userRoutes = require("./routes/users.js")
+const userRoutes = require("./routes/users.js");
+const oneOnOneChatRoutes = require("./routes/oneOnOneChats.js");
+const groupChatsRoutes = require("./routes/groupChats.js");
 const socketHandler = require("./socketHandler");
 const db_con = require("./connections.js");
 const http = require("http");
@@ -33,6 +35,9 @@ app.use("/api/messages", chatRoutes);
 app.use("/api/contacts", contactsRoutes);
 app.use("/api/chats", allChatsRoutes);
 app.use("/api/user", userRoutes);
+app.use("/api/oneOnOneChat", oneOnOneChatRoutes);
+app.use("/api/groupChats", groupChatsRoutes);
+
 
 const server = http.createServer(app);
 

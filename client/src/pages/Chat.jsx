@@ -23,10 +23,14 @@ const Chat = ({socket}) => {
     const [messageSent, setMessageSent] = useState("");
     // manages the state of the chat log (list of messages)
     const [chatLog, setChatLog] = useState([]);
+    const [username, setUsername] = useState(null);
+
     const location = useLocation();
     const chatId = location.state?.chatId;
     const recipientId = location.state?.contactId;
-    
+    const chatType = location.state?.chatType;    
+    const chatName = location.state?.chatName;
+
     /**
      * Scrolls automatically to the bottom of the top every time a message is sent
      */
@@ -38,12 +42,25 @@ const Chat = ({socket}) => {
     };
 
     useEffect(() => {
-        fetchUserId();
+        // Fetch user details and chat messages
+        fetchUserDetails().then(() => {
+            if (chatId) {
+                fetchMessages(chatId);
+                // Join the chat room
+                socket.emit("join_chat", chatId);
+            }
+        });
 
-        if (chatId) {
-            fetchMessages(chatId);
+        return () => {
+            if (chatId) {
+                // Emitting the leave_chat event when the 
+                // component unmounts or dependencies change
+                socket.emit("leave_chat", chatId);
+                console.log(`User with ID ${userId} is leaving chat ${chatId}`);
+            }
         }
-    }, [chatId]);
+    }, [chatId, socket, userId]); 
+    
 
     useEffect(() => {
         /**
@@ -79,11 +96,12 @@ const Chat = ({socket}) => {
     * Fetches the details of the current user that is logged in
     * from the server.
     */
-    const fetchUserId = async () => {
+    const fetchUserDetails = async () => {
         try {
             const response = await axios.get('http://localhost:5000/api/user/details', { withCredentials: true });
-            console.log("user response: " + JSON.stringify(response, null, 2));
+            console.log("User response: " + JSON.stringify(response, null, 2));
             setUserId(response.data.userId);
+            setUsername(response.data.username);
         } catch (error) {
             console.error("Error fetching user details: ", error);
         }
@@ -99,9 +117,10 @@ const Chat = ({socket}) => {
             const response = await axios.get(`http://localhost:5000/api/messages/${chatId}`, { withCredentials: true });
             console.log("Messages fetched from the database: " + JSON.stringify(response, null, 2));
             const fetchedMessages = response.data;
-            fetchedMessages.forEach(message => {
-                message.timestamp = new Date().toISOString().slice(0, 19).replace('T', ' ');
-            })
+            fetchedMessages.forEach(message => ({
+                ...message,
+                timestamp: new Date().toISOString().slice(0, 19).replace('T', ' ')
+            }));
             setChatLog(fetchedMessages);
         } catch (error) {
             console.error("Error fetching messages: ", error);
@@ -111,7 +130,7 @@ const Chat = ({socket}) => {
     /**
      * Fetches the current status for this particular chat
      * 
-     * @returns             the status of the current chat 
+     * @returns      the status of the current chat 
      */
     const fetchChatStatus = async () => {
         try {
@@ -134,22 +153,26 @@ const Chat = ({socket}) => {
         //Check before delivering message that if chat is currently inactive, no message is sent
         if (chatStatus === "inactive")
         {
-            return alert("Unable to send message to somone not in your contacts list");
+            return alert("Unable to send message to someone not in your contacts list");
         }
         
         if (messageSent !== "") {
             const timestamp = new Date().toISOString().slice(0, 19).replace('T', ' ');
             const messageData = {
                 message: messageSent,
+                sender_username: username,
                 senderId: userId,
                 recipientId, 
-                timestamp
+                timestamp,
+                chatId,
+                chatType,
+                chatName
             }
 
             await socket.emit("deliver_message", messageData);
             setMessageSent("");
         }
-            }
+    }
 
     /**
      * Allows the user to press "Enter" to send a message
@@ -175,6 +198,7 @@ const Chat = ({socket}) => {
                         const isCurrentUser = messageData.sender_id === userId;
                         return (
                             <div key={index} className={isCurrentUser ? "message user-message" : "message opponent-message"}>
+                                <strong>{messageData.sender_username}</strong>
                                 <p>{messageData.message}</p>
                                 <p className="message-time">{messageData.timestamp}</p>
                             </div>

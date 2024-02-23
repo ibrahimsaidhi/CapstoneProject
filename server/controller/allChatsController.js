@@ -10,15 +10,35 @@ exports.getAllChats = function(req, res) {
 
     // SQL query to fetch all chats involving the user
     const query = `
-        SELECT c.chat_id, c.chat_type, m.message, m.timestamp, m.sender_id, m.recipient_id
-        FROM chat c
-        JOIN message m ON c.message_id = m.message_id
-        WHERE m.sender_id = ? OR m.recipient_id = ?
-        GROUP BY c.chat_id
-        ORDER BY m.timestamp DESC;
+        SELECT 
+            c.name,
+            c.chat_id, 
+            c.chat_type, 
+            m.message, 
+            m.timestamp, 
+            m.sender_id, 
+            m.recipient_id
+        FROM 
+            chat c
+        INNER JOIN 
+            chat_participants cp ON c.chat_id = cp.chat_id
+        LEFT JOIN 
+            (SELECT 
+                message_id, 
+                message, 
+                timestamp, 
+                sender_id, 
+                recipient_id, 
+                chat_id,
+                MAX(timestamp) OVER(PARTITION BY chat_id) AS latest_timestamp
+            FROM message) m ON c.chat_id = m.chat_id AND m.timestamp = m.latest_timestamp
+        WHERE 
+            cp.user_id = ?
+        ORDER BY 
+            m.timestamp DESC;
     `;
 
-    db_con.execute(query, [userId, userId], (error, results) => {
+    db_con.execute(query, [userId], (error, results) => {
         if (error) {
             return res.status(500).send({ message: error.message });
         }
@@ -30,8 +50,8 @@ exports.getAllChats = function(req, res) {
 /**
  * Gets the status for a particular chat id
  * 
- * @param {*} req       Information about the HTTP request
- * @param {*} res       Response to the HTTP request
+ * @param {Object} req - The request object received from the client
+ * @param {Object} res - The response object that sends back data to the client
  */  
 exports.getStatus =  async (req, res)  =>
   {

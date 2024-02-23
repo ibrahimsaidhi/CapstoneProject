@@ -14,11 +14,11 @@ const authenticateRoute = (req, res, next) => {
     //potential acessToken from client
     const token = req.cookies.accessToken;
 
-    //Check if the accessToken was passed during the request
+    // Check if the accessToken was passed during the request
     if (token)
     {
         try {
-            //Verifiy acessToken from client is same as one sent from server
+            // Verify accessToken from client is same as one sent from server
             const data = jwt.verify(token, SECRET_KEY);
 
             //ensures request api will only use userId from token. Provides extra security such that havin access to token can allow for making calls for any other user
