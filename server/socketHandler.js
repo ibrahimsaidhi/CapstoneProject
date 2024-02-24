@@ -95,6 +95,13 @@ const socketHandler = (server, db_con) => {
     });
       // Emitting received message to all connected users
       io.emit("receive_message", fullMessage);
+      // emit notification
+      io.emit("receive_notification", {
+        senderId: fullMessage.senderId,
+        recipientId: fullMessage.recipientId,
+        message: fullMessage.message,
+        isRead: false,
+      })
     });
 
     socket.on('disconnect', () => {

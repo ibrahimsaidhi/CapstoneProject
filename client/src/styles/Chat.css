@@ -27,6 +27,15 @@ body {
   flex-direction: column;
 }
 
+.back-button {
+  padding: 6px 12px;
+  background-color: #007bff;
+  color: white;
+  border: 2px white;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
 .chat-header {
   padding: 10px;
   background-color: #007bff;
@@ -111,5 +120,10 @@ body {
 
 .send-button:hover {
   background-color: #0056b3;
+}
+
+span {
+  margin-right: 2%;
+  margin-top: 3%;
 }
   

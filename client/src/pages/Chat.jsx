@@ -5,8 +5,11 @@
 
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import emojiData from "@emoji-mart/data";
+import Picker from "@emoji-mart/react";
 import "../styles/Chat.css";
 import axios from 'axios';
+import { BsEmojiSmile } from "react-icons/bs";
 
 /**
  * Chat component that handles real-time messaging
@@ -26,6 +29,18 @@ const Chat = ({socket}) => {
     const location = useLocation();
     const chatId = location.state?.chatId;
     const recipientId = location.state?.contactId;
+    // detecting and managing notifications that are sent
+    const [notifications, setNotifications] = useState([]);
+    const [open, setOpen] = useState(false);
+    const [showEmoji, setShowEmoji] = useState(false);
+
+    console.log("notifications", notifications)
+
+    // detect all unread messages
+    // const unreadNotifications = notifications.map(() => {
+    //     return notifications.filter((n) => n.isRead === false);
+    // });
+
 
     /**
      * Scrolls automatically to the bottom of the top every time a message is sent
@@ -45,6 +60,26 @@ const Chat = ({socket}) => {
         }
     }, [chatId]);
 
+    useEffect(() =>{
+        // receiving notifications
+        const receiveNotification = (messageData) => {
+            const isChatOpen = messageData.recipientId === userId; // this checks if the recipient is currently active on the chat
+            if (isChatOpen){
+                // if recipient user, then update the notification index to state that message has been read (???) 
+                setNotifications((prev) => [{...messageData, isRead: true}, ...prev]); 
+            }
+            else {
+                setNotifications((prev) => [messageData, ...prev]); // if not, then the message has not been read. 
+            }
+        };
+
+        socket.on("receive_notification", receiveNotification);
+        // cleanup socket listener after use
+        return () => {
+            socket.off("receive_notification", receiveNotification);
+        };
+    }, [socket, userId, notifications]);
+
     useEffect(() => {
         /**
          * Handles incoming messages from users
@@ -63,12 +98,11 @@ const Chat = ({socket}) => {
         
             setChatLog((log) => [...log, alignedMessage]);
         };
-        
 
         scrollToBottom();
 
         socket.on("receive_message", receiveMessage);
-    
+        
         // Cleanup function to remove the event listener
         return () => {
             socket.off("receive_message", receiveMessage);
@@ -138,12 +172,38 @@ const Chat = ({socket}) => {
         }
     }
 
+    const addEmoji = (e) => {
+        const sym = e.unified.split("_");
+        const codeArray = [];
+        sym.forEach((el) => codeArray.push("0x" + el));
+        let emoji = String.fromCodePoint(...codeArray);
+        setMessageSent(messageSent + emoji);
+      };
+
+    const redirect = () =>{
+        window.location.href = "http://localhost:3000/allchats";
+    }
+
     // rendering the chat interface
     return (
         <div className="chat-room"> 
             <div className="chat-box"> 
                 <div className="chat-header">
-                    <p>Messaging Chatroom</p>
+                    <button className="back-button" onClick={redirect}>Back</button>
+                    <p>Messaging Chatroom</p>  
+                    <div className="notifications">
+                        <div className="notifications-icon" onClick={() => setOpen(!open)}>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-chat-left" viewBox="0 0 16 16">
+                                <path d="M14 1a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H4.414A2 2 0 0 0 3 11.586l-2 2V2a1 1 0 0 1 1-1zM2 0a2 2 0 0 0-2 2v12.793a.5.5 0 0 0 .854.353l2.853-2.853A1 1 0 0 1 4.414 12H14a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z"/>
+                            </svg>
+                        </div>
+                        {open ? (
+                            <div className="notifications-header">
+                                <h4>Notifications</h4>
+                                
+                            </div>
+                        ) : null}
+                    </div>
                 </div>
                 <div className="messages-area">
                     {chatLog.map((messageData, index) => {
@@ -167,9 +227,25 @@ const Chat = ({socket}) => {
                         }}
                         onKeyDown={handleKeyDown}
                     />
+                    <span
+                        onClick={() => setShowEmoji(!showEmoji)}
+                        className="emoji-icon"
+                        >
+                        <BsEmojiSmile />
+                    </span>
+                    
                     <button className="send-button" onClick={deliverMessage}>Send</button>
                 </div>
             </div>
+            {showEmoji && <div>
+                        <Picker 
+                            data={emojiData}
+                            emojiSize={20}
+                            emojiButtonSize={28}
+                            onEmojiSelect={addEmoji}
+                            maxFrequentRows={0}
+                        />
+                    </div>}
         </div>
     );
 }
