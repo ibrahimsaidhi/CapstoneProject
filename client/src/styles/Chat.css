@@ -112,4 +112,9 @@ body {
 .send-button:hover {
   background-color: #0056b3;
 }
+
+span {
+  margin-right: 2%;
+  margin-top: 3%;
+}
   

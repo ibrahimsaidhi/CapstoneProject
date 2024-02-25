@@ -4,9 +4,12 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import emojiData from "@emoji-mart/data";
+import Picker from "@emoji-mart/react";
 import { useLocation } from 'react-router-dom';
 import "../styles/Chat.css";
 import axios from 'axios';
+import { BsEmojiSmile } from "react-icons/bs";
 
 /**
  * Chat component that handles real-time messaging
@@ -24,7 +27,7 @@ const Chat = ({socket}) => {
     // manages the state of the chat log (list of messages)
     const [chatLog, setChatLog] = useState([]);
     const [username, setUsername] = useState(null);
-
+    const [showEmoji, setShowEmoji] = useState(false);
     const location = useLocation();
     const chatId = location.state?.chatId;
     const recipientId = location.state?.contactId;
@@ -91,6 +94,18 @@ const Chat = ({socket}) => {
             socket.off("receive_message", receiveMessage);
         };
     }, [socket, userId, chatLog]);
+
+    /**
+     * takes emoji raw string and converts to hex equivalent for EmojiMart to process
+     * @param {*} e 
+     */
+    const addEmoji = (e) => {
+        const sym = e.unified.split("_");
+        const codeArray = [];
+        sym.forEach((el) => codeArray.push("0x" + el));
+        let emoji = String.fromCodePoint(...codeArray);
+        setMessageSent(messageSent + emoji);
+      };
 
    /**
     * Fetches the details of the current user that is logged in
@@ -216,9 +231,24 @@ const Chat = ({socket}) => {
                         }}
                         onKeyDown={handleKeyDown}
                     />
+                    <span
+                        onClick={() => setShowEmoji(!showEmoji)}
+                        className="emoji-icon"
+                        >
+                        <BsEmojiSmile />
+                    </span>
                     <button className="send-button" onClick={deliverMessage}>Send</button>
                 </div>
             </div>
+            {showEmoji && <div>
+                        <Picker 
+                            data={emojiData}
+                            emojiSize={20}
+                            emojiButtonSize={28}
+                            onEmojiSelect={addEmoji}
+                            maxFrequentRows={0}
+                        />
+                    </div>}
         </div>
     );
 }
