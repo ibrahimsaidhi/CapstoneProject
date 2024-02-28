@@ -100,7 +100,7 @@ const Chat = ({socket}) => {
      * @param {*} e 
      */
     const addEmoji = (e) => {
-        const sym = e.unified.split("_");
+        const sym = e.unified.split("-");
         const codeArray = [];
         sym.forEach((el) => codeArray.push("0x" + el));
         let emoji = String.fromCodePoint(...codeArray);
