@@ -1,18 +1,20 @@
 import React, { useState } from "react";
 import axios from 'axios';
 import '../styles/contacts.css';
+import { FaUser } from 'react-icons/fa';
 
 
 //Page that will display the user contacts. Temp code added for now just to test contacts backend, will be replaced soon
 function Contacts() {
     
-    const [data, setData] = useState(null);
-    const [searchResults, setSearchResults] = useState(null);
+    const [data, setData] = useState([]);
+    const [searchResults, setSearchResults] = useState([]);
     const [searchInput, setSearchInput] = useState("");
     const [contactUsername, setContactUsername] = useState("");
     const [incomingData, setIncomingData] = useState(null);
     const [outgoingData, setOutgoingData] = useState(null);
     const [blockedData, setBlockedData] = useState(null);
+
 
     const api = axios.create({
       baseURL: "http://localhost:5000/api",
@@ -31,9 +33,10 @@ function Contacts() {
 
 
     function fetchData() {
-        api.get('/contacts/all?type=friends')
+
+      api.get('/contacts/all?type=friends')
         .then((response) => {
-          Object.keys(response.data.users).length !== 0 ? setData(JSON.stringify(response.data.users)) : setData("No contacts");
+          setData(response.data.users.length !== 0 ? response.data.users : []);
         })
         .catch((error) => {
           console.log(error);
@@ -77,19 +80,20 @@ function Contacts() {
 
 
     function searchForUsers() {
-      api.get('/contacts/search/'+searchInput)
-      .then((response) => {
-        Object.keys(response.data.users).length !== 0 ? setSearchResults(JSON.stringify(response.data.users)) : setSearchResults("No user with that name");
-      })
-      .catch((error) => {
-        console.log(error);
-        alert("Error. " +error.response.data.message);
-      });
+      api.get('/contacts/search/' + searchInput)
+        .then((response) => {
+          setSearchResults(response.data.users.length !== 0 ? response.data.users : []);
+          console.log(searchResults);
+        })
+        .catch((error) => {
+          console.log(error);
+          alert("Error. " + error.response.data.message);
+        });
     }
 
-    function sendRequest() {
+    function sendRequest(username) {
       const userData = {
-        friendUsername: contactUsername,
+        friendUsername: username,
       };
       api.post('/contacts/friend', userData)
       .then((response) => {
@@ -102,7 +106,7 @@ function Contacts() {
     }
 
 
-    async function rescindRequest() {
+    async function resendRequest() {
       api.delete('/contacts/friend/'+contactUsername+'?type=outgoing')
       .then((response) => {
         Object.keys(response.data).length !== 0 ? fetchData(): console.log("Rescind didnt worked");
@@ -135,26 +139,26 @@ function Contacts() {
       });
     }
 
-    async function removeFromContacts() {
-      api.delete('/contacts/friend/'+contactUsername+'?type=friends')
-      .then((response) => {
-        Object.keys(response.data).length !== 0 ? fetchData(): console.log("Remove didnt worked");
-      })
-      .catch((error) => {
-        console.log(error);
-        alert("Error. " +error.response.data.message);
-      });
+    async function removeFromContacts(username) {
+      api.delete(`/contacts/friend/${username}?type=friends`)
+        .then((response) => {
+          Object.keys(response.data).length !== 0 ? fetchData() : console.log("Remove didn't work");
+        })
+        .catch((error) => {
+          console.log(error);
+          alert("Error. " + error.response.data.message);
+        });
     }
-
-    async function block() {
-      api.put('/contacts/friend/'+contactUsername)
-      .then((response) => {
-        Object.keys(response.data).length !== 0 ? fetchData(): console.log("block didnt worked");
-      })
-      .catch((error) => {
-        console.log(error);
-        alert("Error. " +error.response.data.message);
-      });
+    
+    async function block(username) {
+      api.put(`/contacts/friend/${username}`)
+        .then((response) => {
+          Object.keys(response.data).length !== 0 ? fetchData() : console.log("Block didn't work");
+        })
+        .catch((error) => {
+          console.log(error);
+          alert("Error. " + error.response.data.message);
+        });
     }
 
     async function unblock() {
@@ -168,25 +172,64 @@ function Contacts() {
       });
     }
 
+    return (
+      <div className="App">
+        <h1>Contacts Page</h1>
+        <div className="section">
+          <input type="search" placeholder="search for user" onChange={handleChangeSearch} value={searchInput} />
+          <button className="searchButton" type="button" onClick={searchForUsers}>Search</button>
+          {!searchResults ? (
+            <p>No Search Results</p>
+          ) : (
+            <ul>
+              {searchResults.map((user) => (
+                <li key={user.id}>
+                  <FaUser /> {user.name}
+                  <button onClick={() => sendRequest(user.name)}>Add Friend</button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
 
-    return  <div className="App">
-              <h1>Contacts Page</h1>
-              <input type="search" placeholder="search for user" onChange={handleChangeSearch} value={searchInput} />
-              <button class="searchButton" type="button" onClick={searchForUsers}>Search</button>
-              {!searchResults ? <p> No Search </p> : <div> <p> search results: </p> <ul>{searchResults}</ul> </div>} 
-              <input type="search" placeholder="box to enter username for all non search operations" onChange={handleChangeContactUsername} value={contactUsername} />
-              <button  type="button" onClick={sendRequest}>send request</button>
-              <button  type="button" onClick={rescindRequest}>rescind request</button>
-              <button  type="button" onClick={acceptRequest}>accept request</button>
-              <button  type="button" onClick={declineRequest}>decline request</button>
-              <button  type="button" onClick={removeFromContacts}>remove friend</button>
-              <button  type="button" onClick={block}>block</button>
-              <button  type="button" onClick={unblock}>unblock</button>
-              {!data ? <p> loading all contacts </p> : <div> <p> Contact: </p> <ul>{data}</ul> </div>} 
-              {!data ? <p> loading all incoming request </p> : <div> <p> incoming: </p> <ul>{incomingData}</ul> </div>} 
-              {!data ? <p> loading all outgoing request </p> : <div> <p> outgoing: </p> <ul>{outgoingData}</ul> </div>} 
-              {!data ? <p> loading all blocked contacts </p> : <div> <p> blocked: </p> <ul>{blockedData}</ul> </div>} 
-            </div>;
+        <div className="section">
+          <input type="search" placeholder="box to enter username for all non search operations" onChange={handleChangeContactUsername} value={contactUsername} />
+          <button type="button" onClick={sendRequest}>send request</button>
+          <button type="button" onClick={resendRequest}>resend request</button>
+          <button type="button" onClick={acceptRequest}>accept request</button>
+          <button type="button" onClick={declineRequest}>decline request</button>
+          <button type="button" onClick={removeFromContacts}>remove friend</button>
+          <button type="button" onClick={block}>block</button>
+          <button type="button" onClick={unblock}>unblock</button>
+        </div>
+        <div className="section">
+        <p>Contacts</p>
+          {data.length === 0 ? (
+            <p>No contacts</p>
+          ) : (
+            <ul>
+              {data.map((user) => (
+                <li key={user.id}>
+                  <FaUser /> {user.name}
+                  <button onClick={() => removeFromContacts(user.username)}>Remove Friend</button>
+                  <button onClick={() => block(user.username)}>Block</button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        <div className="section">
+          {!incomingData ? <p> loading all incoming requests </p> : <div> <p> Incoming: </p> <ul>{incomingData}</ul> </div>}
+        </div>
+        <div className="section">
+          {!outgoingData ? <p> loading all outgoing requests </p> : <div> <p> Outgoing: </p> <ul>{outgoingData}</ul> </div>}
+        </div>
+        <div className="section">
+          {!blockedData ? <p> loading all blocked contacts </p> : <div> <p> Blocked: </p> <ul>{blockedData}</ul> </div>}
+        </div>
+      </div>
+    );
   };
   
   export default Contacts

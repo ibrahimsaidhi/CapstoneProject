@@ -34,7 +34,7 @@ const getAll = async (req, res)  =>
         {
           case "friends":
              contactData = await db_con.promise().query(
-              `Select users.username, users.picture, users.user_id from webapp.users INNER JOIN
+              `Select users.name, users.username, users.picture, users.user_id from webapp.users INNER JOIN
               (SELECT contacts.friend_id
               FROM webapp.contacts where user_id = ?  and status = "friends"
               UNION 
@@ -119,7 +119,7 @@ const searchNewContact = async (req, res)  =>
 
         //SQL request to get username, picture and userId of all users with username containin the search term and that is not already a contact of the user
         const contactData = await db_con.promise().query(
-          `Select users.username, users.picture, users.user_id from webapp.users LEFT JOIN
+          `Select users.name, users.username, users.picture, users.user_id from webapp.users LEFT JOIN
           (SELECT contacts.friend_id
           FROM webapp.contacts where user_id = ?
           UNION 
