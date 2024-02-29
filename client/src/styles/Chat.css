@@ -6,16 +6,7 @@ body {
     margin: 0;
     padding: 0;
     font-family: Arial, sans-serif;
-}
-  
-.chat-room {
-  width: 100vw;
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: #f4f4f4;
-}
+} 
 
 .chat-box {
   width: 400px;
@@ -117,4 +108,3 @@ span {
   margin-right: 2%;
   margin-top: 3%;
 }
-  

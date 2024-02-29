@@ -207,7 +207,7 @@ const AllChats = () => {
    */
   const continueChat = (chat) => {
     const contactId = chat.sender_id === userId ? chat.recipient_id : chat.sender_id;
-    navigate(`/chat`, { state: { chatName: chat.name, chatType: chat.chat_type, chatId: chat.chat_id, contactId: contactId } });
+    navigate(`/chatblock`, { state: { chatName: chat.name, chatType: chat.chat_type, chatId: chat.chat_id, contactId: contactId } });
   };
 
   /**

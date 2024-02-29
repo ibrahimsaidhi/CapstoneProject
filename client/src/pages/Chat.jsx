@@ -100,7 +100,7 @@ const Chat = ({socket}) => {
      * @param {*} e 
      */
     const addEmoji = (e) => {
-        const sym = e.unified.split("_");
+        const sym = e.unified.split("-");
         const codeArray = [];
         sym.forEach((el) => codeArray.push("0x" + el));
         let emoji = String.fromCodePoint(...codeArray);
@@ -220,6 +220,15 @@ const Chat = ({socket}) => {
                         )
                     })}
                 </div>
+                {showEmoji && <div>
+                        <Picker 
+                            data={emojiData}
+                            emojiSize={20}
+                            emojiButtonSize={28}
+                            onEmojiSelect={addEmoji}
+                            maxFrequentRows={0}
+                        />
+                    </div>}
                 <div className="chat-footer">
                     <input 
                         type="text"
@@ -240,15 +249,7 @@ const Chat = ({socket}) => {
                     <button className="send-button" onClick={deliverMessage}>Send</button>
                 </div>
             </div>
-            {showEmoji && <div>
-                        <Picker 
-                            data={emojiData}
-                            emojiSize={20}
-                            emojiButtonSize={28}
-                            onEmojiSelect={addEmoji}
-                            maxFrequentRows={0}
-                        />
-                    </div>}
+            
         </div>
     );
 }
