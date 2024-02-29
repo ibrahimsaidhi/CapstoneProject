@@ -161,7 +161,7 @@ const AllChats = () => {
       createOneOnOneChat("one-on-one", selectedContacts)
         .then(result => {
           console.log("one-on-One chat created successfully with ID:", result.chatId);
-          navigate(`/chat`, { state: { chatName: "one-on-one", chatId: result.chatId, 
+          navigate(`/chatblock`, { state: { chatName: "one-on-one", chatId: result.chatId, 
                               contactId: selectedContacts[0], chatType: 'one-on-one' }});
          })
         .catch(error => {
@@ -185,7 +185,7 @@ const AllChats = () => {
       createGroupChat(chatName, selectedContacts)
       .then(data => {
         const { chatId } = data;
-        navigate(`/chat`, { state: { chatId, chatType: 'group', chatName }});
+        navigate(`/chatblock`, { state: { chatId, chatType: 'group', chatName }});
       })
       .catch(error => {
         alert("Failed to create group chat: " + error);
