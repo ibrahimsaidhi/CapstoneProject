@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const path = require('path');
 const authenticationRoutes =  require("./routes/auth.js");
 const chatRoutes = require("./routes/chat.js")
 const contactsRoutes = require("./routes/contacts.js");
@@ -7,6 +8,7 @@ const allChatsRoutes = require("./routes/allChats.js");
 const userRoutes = require("./routes/users.js");
 const oneOnOneChatRoutes = require("./routes/oneOnOneChats.js");
 const groupChatsRoutes = require("./routes/groupChats.js");
+const uploadRoutes = require("./routes/upload.js");
 const socketHandler = require("./socketHandler");
 const db_con = require("./connections.js");
 const http = require("http");
@@ -37,7 +39,8 @@ app.use("/api/chats", allChatsRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/oneOnOneChat", oneOnOneChatRoutes);
 app.use("/api/groupChats", groupChatsRoutes);
-
+app.use('/api/upload', uploadRoutes);
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 const server = http.createServer(app);
 

@@ -6,6 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import "../styles/Chat.css";
+import '../styles/ImageModal.css';
 import axios from 'axios';
 
 /**
@@ -24,6 +25,13 @@ const Chat = ({socket}) => {
     // manages the state of the chat log (list of messages)
     const [chatLog, setChatLog] = useState([]);
     const [username, setUsername] = useState(null);
+    const [uploadedFilePath, setUploadedFilePath] = useState(null);
+    const [fileType, setFileType] = useState(null);
+    const [fileLabel, setFileLabel] = useState("No File Chosen");
+    const [fileName, setFileName] = useState("");
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [currentImageSrc, setCurrentImageSrc] = useState("");
+
 
     const location = useLocation();
     const chatId = location.state?.chatId;
@@ -143,35 +151,111 @@ const Chat = ({socket}) => {
     }
 
     /**
+     * Handles the change event on a file input element.
+     * It calls the "uploadFile" function with the 
+     * appropriate file type (image, video, audio, documents, compressed files).
+     * @param {Event} event - Event object that contains the properties of the file that has been uploaded.
+     */
+    const handleFileChange = async (event) => {
+        const files = event.target.files;
+        if(files.length > 0) {
+            // Check if at least one file is selected
+            const file = files[0];
+            const fileName = file.name;
+    
+            Array.from(files).forEach(file => {
+                const fileType = file.type.split('/')[0];
+                
+                switch (fileType) {
+                    case 'image':
+                        // Handle image upload
+                        uploadFile(file, 'image');
+                        break;
+                    case 'video':
+                        // Handle video upload
+                        uploadFile(file, 'video');
+                        break;
+                    case 'audio':
+                        // Handle audio upload
+                        uploadFile(file, 'audio');
+                        break;
+                    default:
+                        // Handle other files (documents, compressed files)
+                        // I rendered a "download file" link for these that the user can click on
+                        uploadFile(file, 'other');
+                        break;
+                }
+                setFileName(fileName);
+                setFileLabel(event.target.files.length > 0 ? `File Selected: ${fileName}` : "No File Chosen");
+            });
+        }
+    };
+
+    /**
+     * Makes a request to the server to place the file that the user uploaded
+     * in the appropriate directory.
+     * 
+     * If the upload is successful, then it sets the file path and the type of file (e.g., image, video, documents)
+     * If there is an error during the upload, then it logs the error to the console.
+     * @param {File} file - The file object to be uploaded.
+     * @param {String} type - A string that indicates the type of file that is being uploaded (e.g., image, video, audio, other)
+     */
+    const uploadFile = async (file, type) => {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('type', type);
+    
+        try {
+            const response = await axios.post('http://localhost:5000/api/upload/uploadFiles', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+                withCredentials: true
+            });
+            console.log('File uploaded successfully:', response.data);
+            setUploadedFilePath(response.data.filePath);
+            setFileType(file.type.split('/')[0]);        
+        } catch (error) {
+            console.error('Error uploading file:', error);
+        }
+    };
+    
+
+    /**
      * Delivers the message over the socket to other users
      */
     const deliverMessage = async () => {
-
-        //Fetch the current status of the chat
+        // Fetch the current status of the chat
         const chatStatus = await fetchChatStatus();
 
-        //Check before delivering message that if chat is currently inactive, no message is sent
+        // Check before delivering message that if chat is currently inactive, no message is sent
         if (chatStatus === "inactive")
         {
             return alert("Unable to send message to someone not in your contacts list");
         }
-        
-        if (messageSent !== "") {
-            const timestamp = new Date().toISOString().slice(0, 19).replace('T', ' ');
-            const messageData = {
-                message: messageSent,
-                sender_username: username,
-                senderId: userId,
-                recipientId, 
-                timestamp,
-                chatId,
-                chatType,
-                chatName
-            }
 
-            await socket.emit("deliver_message", messageData);
-            setMessageSent("");
+        if (!messageSent.trim() && !uploadedFilePath) return;
+
+        const timestamp = new Date().toISOString().slice(0, 19).replace('T', ' ');
+        const messageData = {
+            message_type: uploadedFilePath ? fileType : 'text',
+            message: messageSent,
+            file_path: uploadedFilePath,
+            file_name: fileName,
+            sender_username: username,
+            senderId: userId,
+            recipientId, 
+            timestamp,
+            chatId,
+            chatType,
+            chatName
         }
+
+        await socket.emit("deliver_message", messageData);
+
+        setMessageSent("");
+        setUploadedFilePath(null);
+        setFileType(null);
     }
 
     /**
@@ -183,44 +267,131 @@ const Chat = ({socket}) => {
             // preventing page reload
             event.preventDefault();
             deliverMessage();
+            handleFileDeselect(); 
         }
     }
 
+    /**
+     * Updating the state variables to ensure that no file is selected.
+     * This is useful when the user clicks on the "Remove File" button
+     * to remove a specific file and choose another file to send in a 
+     * chat instead.
+     */
+    const handleFileDeselect = () => {
+        document.getElementById('fileInput').value = '';
+        setFileLabel("No File Chosen");
+        setUploadedFilePath(null);
+        setFileType(null);
+    };
+
+    /**
+     * Enables users to enlarge an image by clicking on it.
+     * @param {Object} props - Props contain isOpen, onClose, and src.
+     * isOpen - whether the modal is open or not.
+     * onClose - disable the modal when it is closed.
+     * src - the URL of the image to be enlarged
+     */
+    const ImageModal = ({ isOpen, src, onClose }) => {
+        if (!isOpen) return null;
+      
+        return (
+          <div className="image-modal-backdrop" onClick={onClose}>
+            <div className="image-modal-content" onClick={e => e.stopPropagation()}>
+              <img src={src} alt="Expanded view" style={{ maxWidth: '90%', maxHeight: '90%' }} />
+              <button onClick={onClose}>Close</button>
+            </div>
+          </div>
+        );
+      };
+      
+
     // rendering the chat interface
     return (
-        <div className="chat-room"> 
-            <div className="chat-box"> 
+        <div className="chat-room">
+            <ImageModal isOpen={isModalOpen} src={currentImageSrc} onClose={() => setIsModalOpen(false)} />
+            <div className="chat-box">
                 <div className="chat-header">
                     <p>Messaging Chatroom</p>
                 </div>
                 <div className="messages-area">
-                    {chatLog.map((messageData, index) => {
-                        const isCurrentUser = messageData.sender_id === userId;
-                        return (
-                            <div key={index} className={isCurrentUser ? "message user-message" : "message opponent-message"}>
-                                <strong>{messageData.sender_username}</strong>
-                                <p>{messageData.message}</p>
-                                <p className="message-time">{messageData.timestamp}</p>
-                            </div>
-                        )
+                {chatLog.map((messageData, index) => {
+                    const isCurrentUser = messageData.sender_id === userId;
+                    const isImageMessage = messageData.message_type === 'image';
+                    const isVideoMessage = messageData.message_type === 'video';
+                    const isFileMessage = messageData.message_type === 'application';
+
+                    const fileSrc = `http://localhost:5000${messageData.file_path}`;
+
+                    return (
+                        <div key={index} className={isCurrentUser ? "message user-message" : "message opponent-message"}>
+                            <strong>{messageData.sender_username}</strong>
+                            {/* Display text message if it exists */}
+                            {<p>{messageData.message}</p>}
+                            {/* Then check for and display file if it exists */}
+                            {isImageMessage && (
+                                <img src={fileSrc}
+                                    alt="file" 
+                                    style={{ maxWidth: '300px', maxHeight: '300px', cursor: 'pointer' }} 
+                                    onClick={() => {
+                                        setCurrentImageSrc(fileSrc);
+                                        setIsModalOpen(true);
+                                    }}
+                                />
+                            )}
+                            {isVideoMessage && (
+                                <video width="320" height="240" controls style={{display: 'block', margin: '0 auto' }}>
+                                    <source src={fileSrc} type="video/mp4" />
+                                    Your browser does not support the video tag.
+                                </video>
+                            )}
+                            {isFileMessage && (
+                                <a href={fileSrc} download style={{ color: "#FF7F50"}}>{messageData.file_name}</a>
+                            )}
+                            <p className="message-time">{messageData.timestamp}</p>
+                        </div>
+                        );
                     })}
+
                 </div>
                 <div className="chat-footer">
-                    <input 
-                        type="text"
+                    <div className="file-input-container">
+                        <input
+                            type="file"
+                            id="fileInput"
+                            style={{ display: 'none' }}
+                            accept="image/*,video/*,audio/*,application/pdf,application/zip"
+                            onChange={handleFileChange}
+                            multiple
+                        />
+                        <label htmlFor="fileInput" className="file-upload-button">
+                            Choose Files
+                        </label>
+                        
+                        <button className="file-deselect-button" onClick={handleFileDeselect}>
+                            Remove File
+                        </button>
+                        <br/>
+                        <br />
+                        <span className="file-upload-status">{fileLabel}</span>               
+                    </div>
+                    <textarea
                         className="message-input"
                         placeholder="Send a message..."
                         value={messageSent}
-                        onChange={(e) => {
-                            setMessageSent(e.target.value);
-                        }}
+                        onChange={(e) => setMessageSent(e.target.value)}
                         onKeyDown={handleKeyDown}
                     />
-                    <button className="send-button" onClick={deliverMessage}>Send</button>
+                    <button className="send-button" 
+                        onClick={() => { 
+                            deliverMessage(); 
+                            handleFileDeselect(); 
+                        }}>
+                        Send
+                    </button>
                 </div>
             </div>
         </div>
-    );
+    );    
 }
 
 export default Chat;

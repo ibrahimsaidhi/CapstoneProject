@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import '../styles/ModalStyles.css';
 import { useNavigate } from 'react-router-dom';
 import defaultAvatar from '../images/default_avatar.png';
 import groupChatIcon from '../images/group_icon.png';
 import '../styles/AllChats.css';
+import '../styles/NewChatModal.css';
+
 
 /**
  * Component that displays all the chats that the
@@ -223,8 +224,8 @@ const AllChats = () => {
   const ContactsModal = ({ isOpen, onClose, contacts }) => {
       if (!isOpen) return null;
       return (
-        <div className="modal">
-          <div className="modal-content">
+        <div className="new-chat-modal">
+          <div className="new-chat-modal-content">
             <span className="close" onClick={onClose}>&times;</span>
             {contacts.length === 0 ? (
               <p>No Contacts to Display</p>
