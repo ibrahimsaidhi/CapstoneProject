@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import axios from 'axios';
 import '../styles/contacts.css';
-import { FaUser } from 'react-icons/fa';
 import defaultAvatar from '../images/default_avatar.png';
 
 
