@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import axios from 'axios';
 import '../styles/contacts.css';
 import { FaUser } from 'react-icons/fa';
+import defaultAvatar from '../images/default_avatar.png';
+
 
 
 //Page that will display the user contacts. Temp code added for now just to test contacts backend, will be replaced soon
@@ -188,7 +190,11 @@ function Contacts() {
             <ul>
               {searchResults.map((user) => (
                 <li key={user.id}>
-                  <FaUser /> {user.name}
+                  <img className="profile-image"
+                    src={defaultAvatar} 
+                    alt={`${user.name}'s profile`} 
+                  />
+                  {user.name} &nbsp;
                   <button onClick={() => sendRequest(user.username)}>Add Friend</button>
                 </li>
               ))}
@@ -203,9 +209,13 @@ function Contacts() {
             <ul>
               {data.map((user) => (
                 <li key={user.id}>
-                  <FaUser /> {user.name}
-                  <button onClick={() => removeFromContacts(user.username)}>Remove Friend</button>
-                  <button onClick={() => block(user.username)}>Block</button>
+                    <img className="profile-image"
+                      src={defaultAvatar} 
+                      alt={`${user.name}'s profile`} 
+                    />
+                    {user.name} &nbsp;
+                    <button onClick={() => removeFromContacts(user.username)}>Remove Friend</button>
+                    <button onClick={() => block(user.username)}>Block</button>
                 </li>
               ))}
             </ul>
@@ -219,7 +229,11 @@ function Contacts() {
             <ul>
               {incomingData.map((user) => (
                 <li key={user.id}>
-                  <FaUser /> {user.name}
+                  <img className="profile-image"
+                    src={defaultAvatar} 
+                    alt={`${user.name}'s profile`} 
+                  />
+                  {user.name} &nbsp;
                   <button onClick={() => acceptRequest(user.username)}>Accept</button>
                   <button onClick={() => declineRequest(user.username)}>Decline</button>
                 </li>
@@ -235,7 +249,11 @@ function Contacts() {
             <ul>
               {outgoingData.map((user) => (
                 <li key={user.id}>
-                  <FaUser /> {user.name}
+                  <img className="profile-image"
+                    src={defaultAvatar} 
+                    alt={`${user.name}'s profile`} 
+                  />
+                  {user.name} &nbsp;
                   <button onClick={() => rescindRequest(user.username)}>Cancel</button>
                 </li>
               ))}
@@ -250,7 +268,11 @@ function Contacts() {
             <ul>
               {blockedData.map((user) => (
                 <li key={user.id}>
-                  <FaUser /> {user.name}
+                  <img className="profile-image"
+                    src={defaultAvatar} 
+                    alt={`${user.name}'s profile`} 
+                  />
+                  {user.name} &nbsp;
                   <button onClick={() => unblock(user.username)}>Unblock</button>
                 </li>
               ))}
