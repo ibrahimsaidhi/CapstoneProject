@@ -34,7 +34,7 @@ const getAll = async (req, res)  =>
         {
           case "friends":
              contactData = await db_con.promise().query(
-              `Select users.username, users.picture, users.user_id from webapp.users INNER JOIN
+              `Select users.name, users.username, users.picture, users.user_id from webapp.users INNER JOIN
               (SELECT contacts.friend_id
               FROM webapp.contacts where user_id = ?  and status = "friends"
               UNION 
@@ -45,28 +45,28 @@ const getAll = async (req, res)  =>
             
           case "incoming":
             contactData = await db_con.promise().query(
-              `Select users.username, users.picture, users.user_id from webapp.users INNER JOIN
+              `Select users.name, users.username, users.picture, users.user_id from webapp.users INNER JOIN
               (SELECT contacts.user_id
               FROM webapp.contacts where friend_id = ?  and status = "pending") t2  ON users.user_id = t2.user_id`,[id]
             );
             break;
           case "outgoing":
             contactData = await db_con.promise().query(
-              `Select users.username, users.picture, users.user_id from webapp.users INNER JOIN
+              `Select users.name, users.username, users.picture, users.user_id from webapp.users INNER JOIN
               (SELECT contacts.friend_id
               FROM webapp.contacts where user_id = ?  and status = "pending") t2  ON users.user_id = t2.friend_id`,[id]
             );
             break;
           case "blocked":
             contactData = await db_con.promise().query(
-              `Select users.username, users.picture, users.user_id from webapp.users INNER JOIN
+              `Select users.name, users.username, users.picture, users.user_id from webapp.users INNER JOIN
               (SELECT contacts.friend_id
               FROM webapp.contacts where user_id = ?  and status = "blocked") t2  ON users.user_id = t2.friend_id`,[id]
             );
             break;
           case "non-friends":
             contactData = await db_con.promise().query(
-              `Select users.username, users.picture, users.user_id from webapp.users LEFT JOIN
+              `Select users.name, users.username, users.picture, users.user_id from webapp.users LEFT JOIN
               (SELECT contacts.friend_id
               FROM webapp.contacts where user_id = ? and status = "friend"
               UNION 
@@ -119,7 +119,7 @@ const searchNewContact = async (req, res)  =>
 
         //SQL request to get username, picture and userId of all users with username containin the search term and that is not already a contact of the user
         const contactData = await db_con.promise().query(
-          `Select users.username, users.picture, users.user_id from webapp.users LEFT JOIN
+          `Select users.name, users.username, users.picture, users.user_id from webapp.users LEFT JOIN
           (SELECT contacts.friend_id
           FROM webapp.contacts where user_id = ?
           UNION 

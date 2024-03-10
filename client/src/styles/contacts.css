@@ -1,11 +1,33 @@
-.searchButton {
+
+Button {
     cursor: pointer;
+    margin: 1px;
 }
 
-.addButton {
-    cursor: pointer;
-}
+.section {
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    padding: 20px;
+    margin-bottom: 20px;
+    background-color: #f9f9f9;
+  }
 
-.removeButton {
+  li {
+    display: flex;
+    align-items: center;
+    padding: 8px 0;
+  }
+  
+  .fa-user {
+    margin-right: 8px;
+    font-size: 20px;
+  }
+
+  .profile-image {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
     cursor: pointer;
-}
+  }
+  
