@@ -31,7 +31,8 @@ const AllChats = () => {
   });
 
   useEffect(() => {
-    fetchUserDetails();   
+    fetchUserDetails(); 
+    // eslint-disable-next-line react-hooks/exhaustive-deps  
   }, []);
   
 

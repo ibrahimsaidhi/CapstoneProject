@@ -4,14 +4,11 @@ import '../styles/contacts.css';
 import defaultAvatar from '../images/default_avatar.png';
 
 
-
-//Page that will display the user contacts. Temp code added for now just to test contacts backend, will be replaced soon
 function Contacts() {
     
     const [data, setData] = useState([]);
     const [searchResults, setSearchResults] = useState([]);
     const [searchInput, setSearchInput] = useState("");
-    const [contactUsername, setContactUsername] = useState("");
     const [incomingData, setIncomingData] = useState([]);
     const [outgoingData, setOutgoingData] = useState([]);
     const [blockedData, setBlockedData] = useState([]);
@@ -25,11 +22,6 @@ function Contacts() {
     const handleChangeSearch = (e) => {
       e.preventDefault();
       setSearchInput(e.target.value);
-    };
-
-    const handleChangeContactUsername = (e) => {
-      e.preventDefault();
-      setContactUsername(e.target.value);
     };
 
 
@@ -75,6 +67,7 @@ function Contacts() {
     React.useEffect(() => 
     {
       fetchData();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
 
