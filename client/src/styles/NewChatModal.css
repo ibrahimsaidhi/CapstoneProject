@@ -1,4 +1,4 @@
-.modal {
+.new-chat-modal {
     position: fixed;
     z-index: 1;
     left: 0;
@@ -9,7 +9,7 @@
     background-color: rgba(0, 0, 0, 0.4);
 }
   
-.modal-content {
+.new-chat-modal-content {
     background-color: #fefefe;
     margin: 15% auto;
     padding: 20px;
@@ -41,5 +41,6 @@
 .contact-name {
     margin-right: 10px; 
 }
+  
   
   

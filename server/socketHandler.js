@@ -30,15 +30,17 @@ const socketHandler = (server, db_con) => {
     // Listening for "deliver_message" events from the React App (front-end)
     socket.on("deliver_message", (messageData) => {
       const fullMessage = {
+        message_type: messageData.message_type,
         message: messageData.message,
         senderId: messageData.senderId,
         timestamp: messageData.timestamp,
         recipientId: messageData.recipientId !== undefined ? messageData.recipientId : null,
-        message_type: "regular",
         chatType: messageData.chatType,
         chatId: messageData.chatId,
         chatName: messageData.chatName,
-        sender_username: messageData.sender_username
+        sender_username: messageData.sender_username,
+        file_path: messageData.file_path || null,
+        file_name: messageData.file_name || null
       };
 
       handleChats(fullMessage, db_con);
@@ -96,16 +98,18 @@ function insertMessageIntoDatabase(fullMessage, db_con) {
 
     if (fullMessage.chatType === "one-on-one") {
       messageQuery = `
-        INSERT INTO message (message, timestamp, sender_id, recipient_id, message_type, chat_id)
-        VALUES (?, ?, ?, ?, ?, ?);
+        INSERT INTO message (message, timestamp, sender_id, recipient_id, message_type, chat_id, file_path, file_name)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?);
       `;
-      queryParams = [fullMessage.message, fullMessage.timestamp, fullMessage.senderId, fullMessage.recipientId, fullMessage.message_type, fullMessage.chatId];
+      queryParams = [fullMessage.message, fullMessage.timestamp, fullMessage.senderId, fullMessage.recipientId,
+         fullMessage.message_type, fullMessage.chatId, fullMessage.file_path, fullMessage.file_name];
     } else if (fullMessage.chatType === "group") {
       messageQuery = `
-        INSERT INTO message (message, timestamp, sender_id, message_type, chat_id)
-        VALUES (?, ?, ?, ?, ?);
+        INSERT INTO message (message, timestamp, sender_id, message_type, chat_id, file_path, file_name)
+        VALUES (?, ?, ?, ?, ?, ?, ?);
       `;
-      queryParams = [fullMessage.message, fullMessage.timestamp, fullMessage.senderId, fullMessage.message_type, fullMessage.chatId];
+      queryParams = [fullMessage.message, fullMessage.timestamp, fullMessage.senderId,
+         fullMessage.message_type, fullMessage.chatId, fullMessage.file_path, fullMessage.file_name];
     }
 
     db_con.execute(messageQuery, queryParams, (messageError, messageResults) => {
