@@ -47,12 +47,22 @@ function Profile() {
           setPasswordType("password")
         }
     }
+    function isPlaintextPasswordInvalid(password){
+        if((password.length >= 8) && (/[A-Z]/.test(password)) && (/[a-z]/.test(password)) && (/[0-9]/.test(password)) 
+            && (/[!@#$%^&*()\-+={}[\]:;"'<>,.?\/|\\]/.test(password))){
+            return false; 
+        }
+        else{
+            return true;
+        } 
+    };
 
     const handleSubmit = (event) => {
         event.preventDefault();
         const p = document.getElementById("new-password").value;
-        setFormData({userId: userId, password: password, newPassword: p});
-        api.put('/profile/updatePassword', formData)
+        if (!isPlaintextPasswordInvalid(p)){
+            setFormData({userId: userId, password: password, newPassword: p});
+            api.put('/profile/updatePassword', formData)
             .then((response) => {
                 console.log(formData);
                 alert("Password updated! Please login again...");
@@ -61,6 +71,10 @@ function Profile() {
             .catch((error) => {
                 console.log(error);
             });
+        }
+        else {
+            alert("Password must be at least 8 characters and must include at least one upper-case letter, one lower-case letter, one numerical digit and one special character.")
+        }
     };
 
     const handleChange = (event) => {
