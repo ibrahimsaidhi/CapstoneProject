@@ -28,7 +28,7 @@ const socketHandler = (server, db_con) => {
     });
 
     // Listening for "deliver_message" events from the React App (front-end)
-    socket.on("deliver_message", (messageData) => {
+    socket.on("deliver_message", async (messageData) => {
       const fullMessage = {
         message_type: messageData.message_type,
         message: messageData.message,
@@ -40,16 +40,30 @@ const socketHandler = (server, db_con) => {
         chatName: messageData.chatName,
         sender_username: messageData.sender_username,
         file_path: messageData.file_path || null,
-        file_name: messageData.file_name || null
+        file_name: messageData.file_name || null,
+        scheduledTime: messageData.scheduledTime,
+        status: messageData.scheduledTime ? 'pending' : 'sent'
       };
 
-      handleChats(fullMessage, db_con);
-      if (messageData.chatType === "one-on-one") {
-        // Emitting message only to sockets in the room corresponding to the chatId
-        io.to(messageData.chatId).emit("receive_message", fullMessage);
-      } else if (messageData.chatType === "group") {
-        // Emitting message to participants in a specific group
-        emitMessageToGroup(fullMessage, io, db_con);
+      try {
+        const resultMessageId = await handleChats(fullMessage, db_con);
+
+        if (!messageData.scheduled_time) {
+          // Update the message status to 'sent' if it's not a scheduled message
+          await db_con.promise().query(`
+            UPDATE message
+            SET status = 'sent'
+            WHERE message_id = ?
+          `, [resultMessageId]);
+        }
+    
+        if (messageData.chatType === "one-on-one") {
+          io.to(messageData.chatId).emit("receive_message", fullMessage);
+        } else if (messageData.chatType === "group") {
+          emitMessageToGroup(fullMessage, io, db_con);
+        }
+      } catch (error) {
+        console.error("Error handling message:", error);
       }
     });
 
@@ -62,7 +76,78 @@ const socketHandler = (server, db_con) => {
       console.log('user disconnected');
     });
   });
+
+  setInterval(() => {
+    checkAndSendScheduledMessages(io, db_con).catch(console.error);
+  }, 1000 ); // Check if there are any scheduled messages every 1 second
 };
+
+/**
+ * Checks if there are any scheduled messages in the database
+ * and notifies the client to send the message at the time that 
+ * it is scheduled. 
+ * 
+ * @param {Object} io 
+ * @param {Object} db_con 
+ */
+async function checkAndSendScheduledMessages(io, db_con) {
+  const now = new Date();
+  const padTo2Digits = (num) => num.toString().padStart(2, '0');
+  // formatting scheduledTime to be compatible with MySQL DateTime format
+  const formattedScheduledTime = [
+      now.getFullYear(),
+      padTo2Digits(now.getMonth() + 1), 
+      padTo2Digits(now.getDate()),
+      ].join('-') + ' ' + [
+      padTo2Digits(now.getHours()),
+      padTo2Digits(now.getMinutes()),
+      padTo2Digits(now.getSeconds()),
+      ].join(':');
+
+  // query that selects the scheduled messages
+  const [scheduledMessages] = await db_con.promise().query(`
+    SELECT 
+      message.*,
+      users.username AS sender_username
+    FROM 
+      message
+    INNER JOIN 
+      users ON message.sender_id = users.user_id
+    WHERE 
+      message.scheduled_time <= ? AND 
+      message.status = 'pending' AND 
+      message.scheduled_time IS NOT NULL
+  `, [formattedScheduledTime]);
+
+  scheduledMessages.forEach(async (message) => {
+    const messageToEmit = {
+      message_type: message.message_type,
+      message: message.message,
+      senderId: message.sender_id,
+      timestamp: message.timestamp,
+      recipientId: message.recipient_id,
+      chatType: message.chatType, 
+      chatId: message.chatId,
+      chatName: message.chatName, 
+      sender_username: message.sender_username, 
+      file_path: message.file_path,
+      file_name: message.file_name
+    };
+
+    // Emit the message to the chat room
+    io.to(message.chat_id).emit('receive_message', messageToEmit);
+
+    // Update the message status to 'sent'
+    await db_con.promise().query(`
+      UPDATE message
+      SET status = 'sent'
+      WHERE message_id = ?
+    `, [message.message_id]);
+    
+    io.to(message.chat_id).emit("message_sent", message.message_id);
+
+  });
+}
 
 /**
  * Retrieves the messageId after the message has been inserted into the database.
@@ -76,6 +161,7 @@ async function handleChats(fullMessage, db_con) {
       const messageId = await insertMessageIntoDatabase(fullMessage, db_con);
       const chatId = fullMessage.chatId;
       await updateMessageWithChatId(chatId, messageId, db_con);
+      return messageId;
   } catch (error) {
       console.error("Error handling one-on-one chat:", error);
   }
