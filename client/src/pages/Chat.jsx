@@ -35,7 +35,14 @@ const Chat = ({socket}) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [currentImageSrc, setCurrentImageSrc] = useState("");
     const [showEmoji, setShowEmoji] = useState(false);
-    
+
+    // timed messages delay
+    const [sendDelay, setSendDelay] = useState("Now");
+    const [customDelay, setCustomDelay] = useState("");
+    const [isCustomDelay, setIsCustomDelay] = useState(false);
+    const [scheduledMessages, setScheduledMessages] = useState([]);
+    const [isPanelOpen, setIsPanelOpen] = useState(true);
+
     const location = useLocation();
     const chatId = location.state?.chatId;
     const recipientId = location.state?.contactId;
@@ -87,20 +94,35 @@ const Chat = ({socket}) => {
                 ...messageData,
                 sender_id: messageData.senderId, // Aligning field names
                 recipient_id: messageData.recipientId,
-                sentByCurrentUser: isCurrentUser
+                sentByCurrentUser: isCurrentUser,
+                timestamp: formatTimestamp()
             };
         
             setChatLog((log) => [...log, alignedMessage]);
         };
-        
 
+        /**
+         * Ensures that the scheduled message gets removed from the side panel
+         * after it gets sent.
+         * @param {number} messageId - the ID of the message
+         */
+        const handleMessageSent = (messageId) => {        
+            setScheduledMessages((currentMessages) =>
+                currentMessages.filter(message => {
+                    return message.message_id !== messageId;
+                })
+            );
+        };
+        
         scrollToBottom();
 
         socket.on("receive_message", receiveMessage);
+        socket.on("message_sent", handleMessageSent);
     
         // Cleanup function to remove the event listener
         return () => {
             socket.off("receive_message", receiveMessage);
+            socket.off("message_sent", handleMessageSent);
         };
     }, [socket, userId, chatLog]);
 
@@ -116,6 +138,21 @@ const Chat = ({socket}) => {
         setMessageSent(messageSent + emoji);
       };
 
+    /**
+     * Fetch scheduled messages for this chat.
+     */
+    const fetchScheduledMessages = async () => {
+        try {
+            const response = await axios.get(`http://localhost:5000/api/schedule/${chatId}`, { withCredentials: true });
+            if (response.status === 200 && response.data.messages) {
+                const userScheduledMessages = response.data.messages.filter(message => message.sender_id === userId);
+                setScheduledMessages(userScheduledMessages);
+            }
+        } catch (error) {
+            console.error("Error fetching scheduled messages: ", error);
+        }
+    };
+    
    /**
     * Fetches the details of the current user that is logged in
     * from the server.
@@ -132,6 +169,39 @@ const Chat = ({socket}) => {
     };
     
     /**
+     * The timestamp is originally in UTC. 
+     * This formats the timestamp, so it is the same time
+     * as the time on the user's computer.
+     * 
+     * The formatted timestamp is in YYYY-MM-DD HH-MM-SS
+     * @param {DateTime} timestamp - the timestamp in UTC
+     * @returns     the formatted timestamp
+     */
+    const formatTimestamp = (timestamp = null) => {
+        let now;
+        if(timestamp != null) {
+            now = new Date(timestamp);
+        } else {
+            now = new Date();
+        }
+
+        // date object used to get the current time
+        // Function to pad numbers to two digits with leading zeros
+        const padTo2Digits = (num) => num.toString().padStart(2, '0');
+        const formattedTimestamp = [
+            now.getFullYear(),
+            padTo2Digits(now.getMonth() + 1), 
+            padTo2Digits(now.getDate()),
+            ].join('-') + ' ' + [
+            padTo2Digits(now.getHours()),
+            padTo2Digits(now.getMinutes()),
+            padTo2Digits(now.getSeconds()),
+            ].join(':');
+        
+        return formattedTimestamp;
+    }
+
+    /**
      * Fetches the chat messages from the server.
      * When the user selects a chat from the list of chats,
      * all the messages are fetched from the database.
@@ -141,11 +211,16 @@ const Chat = ({socket}) => {
             const response = await axios.get(`http://localhost:5000/api/messages/${chatId}`, { withCredentials: true });
             console.log("Messages fetched from the database: " + JSON.stringify(response, null, 2));
             const fetchedMessages = response.data;
-            fetchedMessages.forEach(message => ({
-                ...message,
-                timestamp: new Date().toISOString().slice(0, 19).replace('T', ' ')
-            }));
-            setChatLog(fetchedMessages);
+            const updatedMessages = fetchedMessages.map(message => {
+                const formattedTimestamp = formatTimestamp(message.timestamp);
+
+                return {
+                    ...message,
+                    timestamp: formattedTimestamp
+                };
+            });
+            setChatLog(updatedMessages);
+            fetchScheduledMessages();
         } catch (error) {
             console.error("Error fetching messages: ", error);
         }
@@ -202,7 +277,7 @@ const Chat = ({socket}) => {
                         break;
                 }
                 setFileName(fileName);
-                setFileLabel(event.target.files.length > 0 ? `File Selected: ${fileName}` : "No File Chosen");
+                setFileLabel(event.target.files.length > 0 ? `${fileName}` : "No File Chosen");
             });
         }
     };
@@ -236,7 +311,47 @@ const Chat = ({socket}) => {
         }
     };
     
-
+    /**
+     * Makes a call to the server to insert the
+     * message into the database after a delay.
+     * 
+     * The delay depends on when the user scheduled the message for.
+     * @param {Object} messageData - data of the message
+     * @param {number} delay - the time the user needs to wait for before the message sends
+     */
+    const insertScheduledMessage = async (messageData, delay) => {
+        const scheduledTime = new Date(new Date().getTime() + parseFloat(delay) * 60000);
+    
+        const postData = {
+            chatId: messageData.chatId,
+            message: messageData.message,
+            senderId: messageData.senderId,
+            sender_username: messageData.sender_username,
+            recipientId: messageData.recipientId,
+            message_type: messageData.message_type,
+            timestamp: messageData.timestamp,
+            file_path: messageData.file_path,
+            file_name: messageData.file_name,
+            chatName: messageData.chatName,
+            chatType: messageData.chatType,
+            scheduledTime: scheduledTime, 
+            status: 'pending'
+        };
+    
+        try {
+            const response = await axios.post('http://localhost:5000/api/schedule/insertScheduledMessages', postData, { withCredentials: true });
+    
+            if (response.status === 200) {
+                console.log("Message scheduled: ", JSON.stringify(response.data));
+                fetchScheduledMessages();
+            } else {
+                console.error("Error scheduling message: ", response.data);
+            }
+        } catch (error) {
+            console.error('Error scheduling message:', error);
+        }
+    };
+    
     /**
      * Delivers the message over the socket to other users
      */
@@ -249,10 +364,12 @@ const Chat = ({socket}) => {
         {
             return alert("Unable to send message to someone not in your contacts list");
         }
-
+        
         if (!messageSent.trim() && !uploadedFilePath) return;
 
-        const timestamp = new Date().toISOString().slice(0, 19).replace('T', ' ');
+        // formatting the timestamp
+        const formattedTimestamp = formatTimestamp();
+
         const messageData = {
             message_type: uploadedFilePath ? fileType : 'text',
             message: messageSent,
@@ -261,14 +378,20 @@ const Chat = ({socket}) => {
             sender_username: username,
             senderId: userId,
             recipientId, 
-            timestamp,
+            timestamp: formattedTimestamp,
             chatId,
             chatType,
             chatName
         }
 
-        await socket.emit("deliver_message", messageData);
-
+        if (sendDelay === "Now") {
+            // user wants to send the message now
+            await socket.emit("deliver_message", messageData);
+            fetchScheduledMessages();
+        } else {
+            // user scheduled the message for a particular time in the future
+            await insertScheduledMessage(messageData, sendDelay);
+        }  
         setMessageSent("");
         setUploadedFilePath(null);
         setFileType(null);
@@ -276,7 +399,7 @@ const Chat = ({socket}) => {
 
     /**
      * Allows the user to press "Enter" to send a message
-     * @param {Object} event 
+     * @param {Event} event 
      */
     const handleKeyDown = (event) => {
         if (event.key === "Enter") {
@@ -301,6 +424,83 @@ const Chat = ({socket}) => {
     };
 
     /**
+     * Allows the user to schedule the message, so it sends after 
+     * a delay that is chosen by the user. 
+     * @param {Event} e - The event object that contains information 
+     *                    about when the user wants to send the message
+     */
+    const handleSendDelayChange = (e) => {
+        const selectedDelay = e.target.value;
+        setSendDelay(selectedDelay);
+    
+        if (selectedDelay === "Custom") {
+            const customInput = prompt("Enter custom delay in minutes:", "90");
+            const customDelayInMinutes = parseFloat(customInput);
+    
+            if (!isNaN(customDelayInMinutes) && customDelayInMinutes > 0) {
+                setCustomDelay(customDelayInMinutes.toString());
+                setIsCustomDelay(true);
+                setSendDelay(customDelayInMinutes);
+            } else {
+                alert("Invalid input. Please enter a number greater than 0.");
+                setSendDelay("Now"); 
+                setIsCustomDelay(false);
+            }
+        } else {
+            setCustomDelay(""); 
+            setSendDelay(selectedDelay);
+            setIsCustomDelay(false);
+        }
+    };
+
+    /**
+     * The side panel that displays a list of the messages that have been
+     * scheduled by the user. The user has the option to close the panel 
+     * and re-open it if they would like.
+     * 
+     * If the user wants to send the message after X minutes, this is where
+     * it shall appear. 
+     * @returns     null if the user decides to close the panel.
+     */
+    const ScheduledMessagesPanel = () => {
+        if (!isPanelOpen) return null;
+
+        return (
+            <div className="scheduled-messages-panel">
+                <button onClick={togglePanel} className="toggle-panel-button">
+                    {isPanelOpen ? 'Hide' : 'Show'} Scheduled Messages
+                </button>
+                <h3 className="scheduled-messages-header">Scheduled Messages</h3>
+                <div className="messages-list-container">
+                    <ul>
+                        {scheduledMessages?.map((message, index) => (
+                            message.scheduled_time === null ? (
+                                ""
+                            ) : 
+                            <li key={index}>
+                                { (
+                                    `${message.message} - Scheduled for ${new Date(message.scheduled_time).toLocaleString()}`
+                                )}                 
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+                <div className="send-delay-dropdown-container">
+                    <select className="send-delay-dropdown" value={sendDelay} onChange={handleSendDelayChange}>
+                        <option value="Now">Send Now</option>
+                        <option value="5">After 5 minutes</option>
+                        <option value="15">After 15 minutes</option>
+                        <option value="30">After 30 minutes</option>
+                        <option value="60">After 60 minutes</option>
+                        {isCustomDelay && <option value={customDelay}>{`After ${customDelay} minutes`}</option>}
+                        <option value="Custom">Customize</option>
+                    </select>
+                </div>
+            </div>
+        );
+    };
+
+    /**
      * Enables users to enlarge an image by clicking on it.
      * @param {Object} props - Props contain isOpen, onClose, and src.
      * isOpen - whether the modal is open or not.
@@ -309,110 +509,130 @@ const Chat = ({socket}) => {
      */
     const ImageModal = ({ isOpen, src, onClose }) => {
         if (!isOpen) return null;
-      
+        
         return (
-          <div className="image-modal-backdrop" onClick={onClose}>
+            <div className="image-modal-backdrop" onClick={onClose}>
             <div className="image-modal-content" onClick={e => e.stopPropagation()}>
-              <img src={src} alt="Expanded view" style={{ maxWidth: '90%', maxHeight: '90%' }} />
-              <button onClick={onClose}>Close</button>
+                <img src={src} alt="Expanded view" style={{ maxWidth: '90%', maxHeight: '90%' }} />
+                <button onClick={onClose}>Close</button>
             </div>
-          </div>
+            </div>
         );
-      };
-      
+    };
+
+    /**
+     * Changes the state of the panel, so it can
+     * be opened/closed by the user.
+     */
+    const togglePanel = () => {
+        setIsPanelOpen(prevState => !prevState);
+    }
 
     // rendering the chat interface
     return (
         <div className="chat-room">
             <ImageModal isOpen={isModalOpen} src={currentImageSrc} onClose={() => setIsModalOpen(false)} />
-            <div className="chat-box">
-                <div className="chat-header">
-                    <p>Messaging Chatroom</p>
-                </div>
-                <div className="messages-area">
-                {chatLog.map((messageData, index) => {
-                    const isCurrentUser = messageData.sender_id === userId;
-                    const isImageMessage = messageData.message_type === 'image';
-                    const isVideoMessage = messageData.message_type === 'video';
-                    const isFileMessage = messageData.message_type === 'application';
-
-                    const fileSrc = `http://localhost:5000${messageData.file_path}`;
-
-                    return (
-                        <div key={index} className={isCurrentUser ? "message user-message" : "message opponent-message"}>
-                            <strong>{messageData.sender_username}</strong>
-                            {/* Display text message if it exists */}
-                            {<p>{messageData.message}</p>}
-                            {/* Then check for and display file if it exists */}
-                            {isImageMessage && (
-                                <img src={fileSrc}
-                                    alt="file" 
-                                    style={{ maxWidth: '300px', maxHeight: '300px', cursor: 'pointer' }} 
-                                    onClick={() => {
-                                        setCurrentImageSrc(fileSrc);
-                                        setIsModalOpen(true);
-                                    }}
-                                />
-                            )}
-                            {isVideoMessage && (
-                                <video width="320" height="240" controls style={{display: 'block', margin: '0 auto' }}>
-                                    <source src={fileSrc} type="video/mp4" />
-                                    Your browser does not support the video tag.
-                                </video>
-                            )}
-                            {isFileMessage && (
-                                <a href={fileSrc} download style={{ color: "#FF7F50"}}>{messageData.file_name}</a>
-                            )}
-                            <p className="message-time">{messageData.timestamp}</p>
-                        </div>
-                        );
-                    })}
-
-                </div>
-                <div className="chat-footer">
-                    <div className="file-input-container">
-                        <input
-                            type="file"
-                            id="fileInput"
-                            style={{ display: 'none' }}
-                            accept="image/*,video/*,audio/*,application/pdf,application/zip"
-                            onChange={handleFileChange}
-                            multiple
-                        />
-                        <label htmlFor="fileInput" className="file-upload-button">
-                            Choose Files
-                        </label>
-                        
-                        <button className="file-deselect-button" onClick={handleFileDeselect}>
-                            Remove File
-                        </button>
-                        <br/>
-                        <br />
-                        <span className="file-upload-status">{fileLabel}</span>               
+            <div className="chat-container">
+                <div className="chat-box">
+                    <div className="chat-header">
+                        <p>Messaging Chatroom</p>
                     </div>
-                    <textarea
-                        className="message-input"
-                        placeholder="Send a message..."
-                        value={messageSent}
-                        onChange={(e) => setMessageSent(e.target.value)}
-                        onKeyDown={handleKeyDown}
-                    />
-                    <span
-                        onClick={() => setShowEmoji(!showEmoji)}
-                        className="emoji-icon"
-                    >
-                        <BsEmojiSmile />
-                    </span>
-                    <button className="send-button" 
-                        onClick={() => { 
-                            deliverMessage(); 
-                            handleFileDeselect(); 
-                        }}>
-                        Send
-                    </button>
+                    <div className="messages-area">
+                    {chatLog.map((messageData, index) => {
+                        const isCurrentUser = messageData.sender_id === userId;
+                        const isImageMessage = messageData.message_type === 'image';
+                        const isVideoMessage = messageData.message_type === 'video';
+                        const isFileMessage = messageData.message_type === 'application';
+
+                        const fileSrc = `http://localhost:5000${messageData.file_path}`;
+
+                        return (
+                            <div key={index} className={isCurrentUser ? "message user-message" : "message opponent-message"}>
+                                <strong>{messageData.sender_username}</strong>
+                                {/* Display text message if it exists */}
+                                {<p>{messageData.message}</p>}
+                                {/* Then check for and display file if it exists */}
+                                {isImageMessage && (
+                                    <img src={fileSrc}
+                                        alt="file" 
+                                        style={{ maxWidth: '300px', maxHeight: '300px', cursor: 'pointer' }} 
+                                        onClick={() => {
+                                            setCurrentImageSrc(fileSrc);
+                                            setIsModalOpen(true);
+                                        }}
+                                    />
+                                )}
+                                {isVideoMessage && (
+                                    <video width="320" height="240" controls style={{display: 'block', margin: '0 auto' }}>
+                                        <source src={fileSrc} type="video/mp4" />
+                                        Your browser does not support the video tag.
+                                    </video>
+                                )}
+                                {isFileMessage && (
+                                    <a href={fileSrc} download style={{ color: "#FF7F50"}}>{messageData.file_name}</a>
+                                )}
+                                <p className="message-time">{messageData.timestamp}</p>
+                            </div>
+                            );
+                        })}
+
+                    </div>
+                    <div className="chat-footer">
+                        <div className="file-input-container">
+                            <input
+                                type="file"
+                                id="fileInput"
+                                style={{ display: 'none' }}
+                                accept="image/*,video/*,audio/*,application/pdf,application/zip"
+                                onChange={handleFileChange}
+                                multiple
+                            />
+                            <label htmlFor="fileInput" className="file-upload-button">
+                                Choose Files
+                            </label>
+                            
+                            <button className="file-deselect-button" onClick={handleFileDeselect}>
+                                Remove File
+                            </button>
+                            <br/>
+                            <br />
+                            <span className="file-upload-status">{fileLabel}</span>               
+                        </div>
+                        <div className="message-send-options">
+                            <textarea
+                                className="message-input"
+                                placeholder="Send a message..."
+                                value={messageSent}
+                                onChange={(e) => setMessageSent(e.target.value)}
+                                onKeyDown={handleKeyDown}
+                            />
+                            <span
+                                onClick={() => setShowEmoji(!showEmoji)}
+                                className="emoji-icon"
+                            >
+                                <BsEmojiSmile />
+                            </span>
+                            <button className="send-button" 
+                                onClick={() => { 
+                                    deliverMessage(); 
+                                    handleFileDeselect(); 
+                                }}>
+                                Send
+                            </button>
+                        </div>
+                    </div>
                 </div>
+                {
+                    isPanelOpen ? (
+                        <ScheduledMessagesPanel />
+                    ) : (
+                        <button onClick={togglePanel} className="toggle-panel-button">
+                        Show Scheduled Messages
+                        </button>
+                    )
+                }
             </div>
-            {showEmoji && <div>
+            {showEmoji && <div className="emoji-picker-container">
                         <Picker 
                             data={emojiData}
                             emojiSize={20}
