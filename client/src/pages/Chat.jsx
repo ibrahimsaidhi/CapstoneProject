@@ -70,6 +70,7 @@ const Chat = ({socket}) => {
                 console.log(`User with ID ${userId} is leaving chat ${chatId}`);
             }
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps  
     }, [chatId, socket, userId]); 
     
 
