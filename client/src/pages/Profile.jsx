@@ -96,16 +96,16 @@ function Profile() {
     return <div className="profile-container">
         <div className="image-container">
             <img className="profile-pic" src={`http://localhost:5000/profileUploads/` + profileImage} alt="Profile Picture"/>
+            <p>Username: {username}</p>
             <p>Change Profile Picture?</p>
             <button onClick={() => setImageOpen(!imageOpen)}>Change</button>
             {imageOpen && <form>
                 <label for="myfile">Select a file:</label>
-                <input type="file" id="myfile" name="myfile" onChange={handleFile}></input>
-                <input type="submit" value="Change Profile Picture" onClick = {handleUpload}/>
+                <input className='file' type="file" id="myfile" name="myfile" onChange={handleFile}></input>
+                <input className='handle-submit' type="submit" value="Change Profile Picture" onClick = {handleUpload}/>
             </form>}
         </div>
-        <div>
-            <p>Username: {username}</p>
+        <div className='password-container'>
             <p>Change Password?</p>
             <button onClick={() => setOpen(!open)}>Change</button>
             {open && <form onSubmit={handleSubmit}>
@@ -115,7 +115,7 @@ function Profile() {
                 <input type={passwordType} id="new-password" name="new-password" placeholder="Password"  onChange={handleChange} required/><br/> 
                 <input type="checkbox" onChange={() => showPassword()} id="checkbox" name="checkbox" value="showPassword"/>
                 <label htmlFor="showPassword"> Show Password</label> <br/>
-                <input type="submit" value="Change Password"/>
+                <input className='handle-submit' type="submit" value="Change Password"/>
             </form>}
         </div>
     </div>
