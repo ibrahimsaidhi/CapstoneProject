@@ -49,7 +49,7 @@ const Registration = () => {
     api.post('/auth/registration/', formData)
         .then((response) => {
           alert("Sign Up Is Successful");
-          navigate('../allchats');
+          navigate('../');
         })
         .catch((error) => {
           console.log(error);

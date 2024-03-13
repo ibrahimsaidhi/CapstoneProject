@@ -7,6 +7,7 @@ import RegisterPage from './pages/Registration';
 import HomePage from './pages/Home'; 
 import Chat from './pages/Chat';
 import ContactsPage from './pages/Contacts';
+import ChatBlock from './pages/ChatBlock';
 
 const socket = io("http://localhost:5000")
 
@@ -17,7 +18,8 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/registration" element={<RegisterPage />} />
           <Route path="/" element={<HomePage />}>
-            <Route path="/allchats" element={<AllChatsPage />} />
+            {/* <Route path="/allchats" element={<AllChatsPage />} /> */}
+            <Route path="/chatblock" element={<ChatBlock />}/>
             <Route path="/contacts" element={<ContactsPage />} />
           </Route>
           <Route path="/chat" element={<Chat socket={socket} />} />

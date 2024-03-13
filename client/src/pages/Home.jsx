@@ -63,7 +63,7 @@ function Home() {
         <h3>Hello, {fullName}!</h3>
         <br/>
         <NavbarItem>
-          <NavLink to="/allchats" activeClassName="active">Chats</NavLink>
+          <NavLink to="/chatblock" activeClassName="active">Chats</NavLink>
           &nbsp; &nbsp;
           <NavLink to="/contacts" activeClassName="active">Contacts</NavLink>
           &nbsp; &nbsp;
