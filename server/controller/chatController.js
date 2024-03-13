@@ -1,7 +1,9 @@
 const db_con = require('../connections');
 
 /**
- * Fetching messages along with the sender's username from the database for a particular chat id
+ * Fetching messages along with the sender's username from the database for a particular chat id.
+ * 
+ * Only fetches messages that are not scheduled by the user (i.e., they select "Send Now")
  * @param {Object} req - The request object received from the client
  * @param {Object} res - The response object that sends back data to the client
  */
@@ -12,7 +14,7 @@ exports.getMessages = function(req, res) {
         SELECT m.*, u.username AS sender_username 
         FROM message m
         JOIN users u ON m.sender_id = u.user_id 
-        WHERE m.chat_id = ?
+        WHERE m.chat_id = ? AND m.status = 'sent'
         ORDER BY m.timestamp ASC`;
 
     db_con.query(query, [chatId], function(error, messages){
