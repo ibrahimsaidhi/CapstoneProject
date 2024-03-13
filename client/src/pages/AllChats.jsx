@@ -259,29 +259,19 @@ const AllChats = () => {
         startChat={startChat}
       />
     <ul>
-      {chats.map((chat, index) => {
-        // debugging purposes 
-        console.log("Contacts Response Output: " + JSON.stringify(contacts, null, 2));
-        console.log("Chat Object Output: " + JSON.stringify(chat, null, 2));
-        const userContact = contacts.find(contact => contact.user_id === (chat.sender_id === userId ? chat.recipient_id : chat.sender_id));
-
-        const profilePictureURL = userContact && userContact.picture ? `http://localhost:5000/profileUploads/${userContact.picture}` : defaultAvatar;
-
-        return (
-          <li key={chat.chat_id} className="chat-item">
-            <img 
-              src={chat.chat_type === 'group' ? groupChatIcon : profilePictureURL}
-              alt="" 
-              title={chat.chat_type === 'group' ? "Group Chat" : "Direct Chat"}
-            />
-            <span className="username" onClick={() => continueChat(chat)} style={{cursor: 'pointer'}}>
-              {chat.recipient_username}
-            </span>
-          </li>
-        );
-      })}
+      {chats.map((chat) => (
+        <li key={chat.chat_id} className="chat-item">
+          <img 
+            src={chat.chat_type === 'group' ? groupChatIcon : defaultAvatar} 
+            alt="" 
+            title={chat.chat_type === 'group' ? "Group Chat": "Direct Chat"}
+          />
+          <span className="username" onClick={() => continueChat(chat)} style={{cursor: 'pointer'}}>
+            {chat.recipient_username}
+          </span>
+        </li>
+      ))}
     </ul>
-
     </div>
   );
 }

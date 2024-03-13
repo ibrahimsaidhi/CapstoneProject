@@ -1,4 +1,6 @@
 body {
+    background: radial-gradient(circle, rgba(34,193,195,1) 0%, rgba(37,170,212,1) 48%, rgba(45,112,253,1) 100%);
+
     align-content: center;
 }
 .profile-pic {
@@ -19,7 +21,7 @@ button {
     margin: 12px;
     background-color: #ffffff;
     color: #007bff;
-    border: solid;
+    border: none;
     border-radius: 20px;
     cursor: pointer;
 }
@@ -29,7 +31,7 @@ input::file-selector-button {
     margin: 12px;
     background-color: #ffffff;
     color: #007bff;
-    border: solid;
+    border: none;
     border-radius: 20px;
     cursor: pointer;
 }
@@ -38,24 +40,23 @@ input::file-selector-button {
     padding: 6px 12px;
     background-color: #ffffff;
     color: #007bff;
-    border: solid;
+    border: none;
     border-radius: 20px;
     cursor: pointer;
 }
 
 input::file-selector-button:hover {
     background-color: #bccee2;
-    border: solid;
 }
 
 .password-container {
     padding: 20px;
     border: none;
-    color: #007bff;
+    color: white;
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
 
 .image-container {
-    color: #007bff;
+    color: white;
 }
