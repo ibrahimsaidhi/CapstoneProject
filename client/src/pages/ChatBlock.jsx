@@ -3,11 +3,12 @@
  * @author: Ibrahim Said
  */
 
-import React from 'react';
+import React, { useState } from "react";
 import Chat from './Chat';
 import AllChats from './AllChats';
 import io from "socket.io-client";
 import "../styles/ChatBlock.css";
+
 
 const socket = io("http://localhost:5000");
 

@@ -252,8 +252,11 @@ const AllChats = () => {
 
   return (
     <div>
-      <h1>Your Chats</h1>
-      <button class="chatButton" onClick={handleNewChat}>New Chat</button>
+      <div className='header'>
+        <h1>Your Chats</h1>
+        <button class="chatButton" onClick={handleNewChat}>New Chat</button>
+      </div>
+      
       <ContactsModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
