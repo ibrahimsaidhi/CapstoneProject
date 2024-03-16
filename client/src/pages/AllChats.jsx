@@ -17,8 +17,9 @@ const AllChats = () => {
   const [contacts, setContacts] = useState([]);
   const [userId, setUserId] = useState(null);
   let [selectedContacts, setSelectedContacts] = useState([]);
-
+  const [show, setShow] = useState(true);
   const navigate = useNavigate();
+
 
   /**
    * Makes API requests with a base URL and 
@@ -163,6 +164,8 @@ const AllChats = () => {
       createOneOnOneChat("one-on-one", selectedContacts)
         .then(result => {
           console.log("one-on-One chat created successfully with ID:", result.chatId);
+          setShow(false);
+          sessionStorage.setItem("show", show);
           navigate(`/chatblock`, { state: { chatName: "one-on-one", chatId: result.chatId, 
                               contactId: selectedContacts[0], chatType: 'one-on-one' }});
          })
@@ -187,6 +190,8 @@ const AllChats = () => {
       createGroupChat(chatName, selectedContacts)
       .then(data => {
         const { chatId } = data;
+        setShow(false);
+        sessionStorage.setItem("show", show);
         navigate(`/chatblock`, { state: { chatId, chatType: 'group', chatName }});
       })
       .catch(error => {
@@ -209,6 +214,8 @@ const AllChats = () => {
    */
   const continueChat = (chat) => {
     const contactId = chat.sender_id === userId ? chat.recipient_id : chat.sender_id;
+    setShow(false);
+    sessionStorage.setItem("show", show);
     navigate(`/chatblock`, { state: { chatName: chat.name, chatType: chat.chat_type, chatId: chat.chat_id, contactId: contactId } });
   };
 

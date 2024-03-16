@@ -48,6 +48,7 @@ const Chat = ({socket}) => {
     const recipientId = location.state?.contactId;
     const chatType = location.state?.chatType;    
     const chatName = location.state?.chatName;
+    
 
     /**
      * Scrolls automatically to the bottom of the top every time a message is sent
@@ -530,7 +531,7 @@ const Chat = ({socket}) => {
 
     // rendering the chat interface
     return (
-        chatLog.length === 0 ? 
+        sessionStorage.getItem("show") ? 
             <div className="empty-chat">
                 <div className='empty'>
                     <p className="empty-message">Send messages to your friends!</p>
