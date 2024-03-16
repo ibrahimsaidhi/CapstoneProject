@@ -4,6 +4,7 @@ import { useLocation } from 'react-router-dom';
 
 import axios from 'axios';
 import '../styles/Profile.css';
+import defaultAvatar from "../images/default_avatar.png";
 
 function Profile() {
     const navigate = useNavigate();
@@ -34,7 +35,11 @@ function Profile() {
             setUserId(api.data.userId);
             setUsername(api.data.username);
             setPassword(api.data.password);
-            setProfileImage(api.data.picture);
+            if (api?.data?.picture !== "/path/pic1") {
+                setProfileImage(`http://localhost:5000/profileUploads/${api.data.picture}`);
+            } else {
+                setProfileImage(defaultAvatar);
+            }
         } catch (error){
             console.error("Error: Cannot fetch user details: ", error);
         }
@@ -109,10 +114,10 @@ function Profile() {
     
     return <div className="profile-container">
         <div className="image-container">
-            <img className="profile-pic" src={`http://localhost:5000/profileUploads/` + profileImage} alt="Profile Picture"/>
+            <img className="profile-pic" src={profileImage} alt="Profile Avatar"/>
             <p>Username: {username}</p>
-            <p>Change Profile Picture?</p>
-            <button onClick={() => setImageOpen(!imageOpen)}>Change</button>
+            <br/>
+            <button onClick={() => setImageOpen(!imageOpen)}>Change Profile Picture</button>
             {imageOpen && <form>
                 <label for="myfile">Select a file:</label>
                 <input className='file' type="file" id="myfile" name="myfile" onChange={handleFile}></input>
@@ -120,16 +125,18 @@ function Profile() {
             </form>}
         </div>
         <div className='password-container'>
-            <p>Change Password?</p>
-            <button onClick={() => setOpen(!open)}>Change</button>
+            <button onClick={() => setOpen(!open)}>Change Password</button>
             {open && <form onSubmit={handleSubmit}>
                 <label for="old-password">Enter Old Password: </label>
                 <input type={passwordType} id="old-password" name="old-password" placeholder="Password"/><br/> 
+                <br/>
                 <label for="old-password">Enter New Password: </label>
                 <input type={passwordType} id="new-password" name="new-password" placeholder="Password"  onChange={handleChange} required/><br/> 
+                <br/>
                 <input type="checkbox" onChange={() => showPassword()} id="checkbox" name="checkbox" value="showPassword"/>
                 <label htmlFor="showPassword"> Show Password</label> <br/>
-                <input className='handle-submit' type="submit" value="Change Password"/>
+                <br/>
+                <input className='handle-submit' type="submit" value="Save New Password"/>
             </form>}
         </div>
     </div>

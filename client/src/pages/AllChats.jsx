@@ -265,7 +265,10 @@ const AllChats = () => {
           console.log("Chat Object Output: " + JSON.stringify(chat, null, 2));
           const userContact = contacts.find(contact => contact.user_id === (chat.sender_id === userId ? chat.recipient_id : chat.sender_id));
   
-          const profilePictureURL = userContact && userContact.picture ? `http://localhost:5000/profileUploads/${userContact.picture}` : defaultAvatar;
+          const profilePictureURL = userContact?.picture && userContact.picture !== "/path/pic1" 
+          ? `http://localhost:5000/profileUploads/${userContact.picture}` 
+          : defaultAvatar;
+
   
           return (
             <li key={chat.chat_id} className="chat-item">
