@@ -548,8 +548,9 @@ const Chat = ({socket}) => {
                             const isCurrentUser = messageData.sender_id === userId;
                             if (!isCurrentUser) {
                                 name = messageData.sender_username;
-                                return;
+                                return "";
                             }
+                            return "";
                         })}
                         <p>{name}</p>
                     </div>
