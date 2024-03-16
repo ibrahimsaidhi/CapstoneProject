@@ -24,6 +24,8 @@ function ForgotPassword() {
   React.useEffect(() => 
     {
         setCode(queryParameters.get("code"));
+        
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
   const handleSubmit = (event) => 

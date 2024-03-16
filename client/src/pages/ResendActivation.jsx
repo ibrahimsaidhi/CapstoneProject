@@ -9,7 +9,6 @@ function ResendActivation() {
   const [email, setEmail] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
   
   const api = axios.create({
     baseURL: "http://localhost:5000/api",
@@ -87,7 +86,6 @@ function ResendActivation() {
         <p> Already have an active account? <Link to="../login" >Sign in now </Link> </p>
         
         {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
-        {successMessage && <p style={{ color: 'green' }}>{successMessage}</p>}
       </div>
     </div>
   );
