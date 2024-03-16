@@ -42,7 +42,7 @@ const Chat = ({socket}) => {
     const [isCustomDelay, setIsCustomDelay] = useState(false);
     const [scheduledMessages, setScheduledMessages] = useState([]);
     const [isPanelOpen, setIsPanelOpen] = useState(true);
-
+    let name = '';
     const location = useLocation();
     const chatId = location.state?.chatId;
     const recipientId = location.state?.contactId;
@@ -530,12 +530,28 @@ const Chat = ({socket}) => {
 
     // rendering the chat interface
     return (
+        chatLog.length === 0 ? 
+            <div className="empty-chat">
+                <div className='empty'>
+                    <p className="empty-message">Send messages to your friends!</p>
+                    <p className='empty-message'>Click on any contact on the left to get started.</p>
+                    <p className='empty-message'>No contacts? Go to the contacts tab and start making friends!</p>
+                </div>
+            </div>
+            :
         <div className="chat-room">
             <ImageModal isOpen={isModalOpen} src={currentImageSrc} onClose={() => setIsModalOpen(false)} />
             <div className="chat-container">
                 <div className="chat-box">
                     <div className="chat-header">
-                        <p>Messaging Chatroom</p>
+                        {chatLog.map((messageData) =>{
+                            const isCurrentUser = messageData.sender_id === userId;
+                            if (!isCurrentUser) {
+                                name = messageData.sender_username;
+                                return;
+                            }
+                        })}
+                        <p>{name}</p>
                     </div>
                     <div className="messages-area">
                     {chatLog.map((messageData, index) => {

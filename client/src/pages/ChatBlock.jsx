@@ -3,7 +3,6 @@
  * @author: Ibrahim Said
  */
 
-import React, { useState } from "react";
 import Chat from './Chat';
 import AllChats from './AllChats';
 import io from "socket.io-client";
