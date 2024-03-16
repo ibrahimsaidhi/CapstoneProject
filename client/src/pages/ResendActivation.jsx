@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
-import '../styles/login.css';
+import '../styles/ResendActivation.css';
 
-function Login() {
+function ResendActivation() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
@@ -19,23 +20,23 @@ function Login() {
 
   const handleSubmit = (event) => {
     event.preventDefault();
+    setErrorMessage('');
     const userData = {
       username: username,
       password: password,
+      email:email,
     };
 
-    api.post('/auth/login', userData)
+    api.post('/auth/resend-activation', userData)
       .then((response) => {
-        sessionStorage.setItem("name", response.data.userInfo.name);
-        sessionStorage.setItem("token", response.data.token);
-        setErrorMessage('');
-        setSuccessMessage('Login successful!');
-        setTimeout(() => navigate('/'), 1000);
+        alert("Re-send is successful. We've sent a new email to you to verify you email address and to activate your account. The link in the email will expire in 24 hours");
+        navigate('../login');
       })
       .catch((error) => {
         setErrorMessage(error.response.data.error);
         setUsername('');
         setPassword('');
+        setEmail('');
       });
   };
 
@@ -45,9 +46,18 @@ function Login() {
 
   return (
     <div className="background">
-      <div className="loginSquare">
-        <h1>Login</h1>
-        <form className="loginForm" onSubmit={handleSubmit}>
+      <div className="resendSquare">
+        <h1>Activation Code Request</h1>
+        <p>If you did not receive an e-mail to activate your account or your link expired, enter your username, password and email address here to receive a new activation link</p>
+        <form className="resendForm" onSubmit={handleSubmit}>
+            <input
+            type="email"
+            value={email}
+            placeholder="Email"
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+          <br/>
           <input
             type="text"
             value={username}
@@ -72,14 +82,10 @@ function Login() {
             value="showPassword"
           />
           <label htmlFor="showPassword"> Show Password</label> <br/>
-          <input type="submit" value="Login"/>
+          <input type="submit" value="Submit"/>
         </form>
-        <p> No account? <Link to="/registration">Register here</Link> </p>
-        <div class = "extraLinks">
-          <Link to="/forgot-password">Forgot password?</Link>
-          <Link to="/resend-activation">Resend activation email?</Link>
-        </div>
-
+        <p> Already have an active account? <Link to="../login" >Sign in now </Link> </p>
+        
         {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
         {successMessage && <p style={{ color: 'green' }}>{successMessage}</p>}
       </div>
@@ -87,4 +93,4 @@ function Login() {
   );
 }
 
-export default Login;
+export default ResendActivation;

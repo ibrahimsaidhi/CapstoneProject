@@ -1,15 +1,5 @@
-.registerButton {
-    cursor: pointer;
-}
 
-.loginButton {
-    cursor: pointer;
-}
-
-/**Need to make changes to only affect login page for non class elements**/
-
-
-.loginSquare > :is(h1, h2, p, label)
+.resendSquare > :is(h1, h2, p, label)
 {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 
@@ -25,7 +15,7 @@
     justify-content: center;
   }
 
-  .loginSquare {
+  .resendSquare {
     background: rgb(34,193,195);
     background: rgba(255, 255, 255);
     
@@ -47,16 +37,22 @@
     **/
   }
 
-  .loginSquare > h1 {
+  .resendSquare > h1 {
     font-size: 1.875rem;
     color:#313131;
     line-height: 1.2;
     font-weight: 500;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    text-align: center;
   }
 
+  h1 + p {
+    text-align: center;
+    margin: 0px 0px 20px 0px;
+    line-height: 1.6;
+  }
 
-  .loginForm > :is(input[type=text], input[type=email], input[type=password], input[type=submit]) {
+  .resendForm > :is(input[type=text], input[type=email], input[type=password], input[type=submit]) {
     width: 100%;
     padding: 12px 20px;
     margin: 8px 0;
@@ -68,17 +64,17 @@
     cursor: pointer;
   }
 
-  .loginForm > :is(input[type=checkbox], label)
+  .resendForm > :is(input[type=checkbox], label)
   {
     cursor: pointer;
   }
 
-  .loginForm
+  .resendForm
   {
       width: 95%;
   }
 
-  .loginSquare > .extraLinks {
+  .resendSquare > .extraLinks {
     width: 100%;
     display: flex;
     justify-content: space-between;
@@ -86,7 +82,7 @@
     box-sizing: border-box
   }
 
-  .loginForm > input[type=submit]:hover{
+  .resendForm > input[type=submit]:hover{
     color: white;
     background: rgb(34,193,195);
    }
@@ -95,9 +91,9 @@
    {
     color: red;
    }
-   
+
    @media screen and (max-height: 600px) {
-    .loginForm > :is(input[type=text], input[type=email], input[type=password], input[type=submit]) {
+    .resendForm > :is(input[type=text], input[type=email], input[type=password], input[type=submit]) {
       width: 100%;
       padding: 8px 20px;
       margin: 4px 0;

@@ -48,8 +48,8 @@ const Registration = () => {
     // Make the POST request
     api.post('/auth/registration/', formData)
         .then((response) => {
-          alert("Sign Up Is Successful");
-          navigate('../allchats');
+          alert("Sign Up Is Successful. We've sent an email to you to verify you email address and to activate your account. The link in the email will expire in 24 hours");
+          navigate('../login');
         })
         .catch((error) => {
           console.log(error);
