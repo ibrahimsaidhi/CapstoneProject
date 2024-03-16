@@ -36,10 +36,10 @@ jobs:
       run: npm test
       working-directory: ${{ matrix.directory }}
     - name: Upload artifact for deployment job
-        uses: actions/upload-artifact@v3
-        with:
-          name: node-app
-          path: .
+      uses: actions/upload-artifact@v3
+      with:
+        name: node-app
+        path: ${{ matrix.directory }}/build
 
   deploy:
     runs-on: ubuntu-latest
