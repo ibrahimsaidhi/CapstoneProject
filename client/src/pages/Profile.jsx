@@ -124,7 +124,7 @@ function Profile() {
             {imageOpen && <form>
                 <label for="myfile">Select a file:</label>
                 <input className='file' type="file" id="myfile" name="myfile" onChange={handleFile}></input>
-                <input className='handle-submit' type="submit" value="Save New Avatar" onClick = {handleUpload}/>
+                <input className='handle-submit' type="submit" value="Save Avatar" onClick = {handleUpload}/>
             </form>}
         </div>
         <div className='password-container'>
