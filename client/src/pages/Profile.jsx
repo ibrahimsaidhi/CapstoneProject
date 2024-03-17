@@ -120,11 +120,11 @@ function Profile() {
             <img className="profile-pic" src={profileImage} alt="Profile Avatar"/>
             <p>Username: {username}</p>
             <br/>
-            <button onClick={() => setImageOpen(!imageOpen)}>Change Profile Picture</button>
+            <button onClick={() => setImageOpen(!imageOpen)}>Change Profile Avatar</button>
             {imageOpen && <form>
                 <label for="myfile">Select a file:</label>
                 <input className='file' type="file" id="myfile" name="myfile" onChange={handleFile}></input>
-                <input className='handle-submit' type="submit" value="Change Profile Picture" onClick = {handleUpload}/>
+                <input className='handle-submit' type="submit" value="Save New Avatar" onClick = {handleUpload}/>
             </form>}
         </div>
         <div className='password-container'>
