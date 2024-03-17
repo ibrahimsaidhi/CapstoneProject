@@ -119,9 +119,16 @@ exports.setNewPassword = async function (req,res) {
                 password,
                 data[0].password
             );
+
+            const isPasswordSame = password === newPassword;
+
+            // check if passwords are the same
+            if (isPasswordSame){
+                return res.status(400).json({ error: "Passwords are the same, please try again" });
+            }
             
                 // hash a new salt for the new password
-            if (isPasswordValid){
+            else if (isPasswordValid){
                 bcrypt.genSalt(10, (err, salt) => {
                     bcrypt.hash(newPassword, salt, async function(err, hash) {
                         // update the table with the new salted hash
@@ -131,6 +138,7 @@ exports.setNewPassword = async function (req,res) {
                         );
                     });
                 })
+                res.status(201).json({ message: 'Password updated! Please login again...'});
             }
             else {
                 return res.status(400).json({ error: "Invalid current password. Please try again" });
@@ -140,7 +148,6 @@ exports.setNewPassword = async function (req,res) {
 
         // Commit and confirm transaction
         await db_con.promise().commit();
-        res.status(201).json({ message: 'Password updated! Please login again...'});
     } catch (err) {
         console.log(err);
         res.status(500).json({
