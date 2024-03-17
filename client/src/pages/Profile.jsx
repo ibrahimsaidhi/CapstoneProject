@@ -76,6 +76,8 @@ function Profile() {
             })
             .catch((error) => {
                 alert(error.response.data.error);
+                document.getElementById("old-password").value = "";
+                document.getElementById("new-password").value = "";
                 console.log(error);
             });
         }
