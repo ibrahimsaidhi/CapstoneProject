@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useLocation } from 'react-router-dom';
 
 import axios from 'axios';
 import '../styles/Profile.css';
@@ -16,7 +15,6 @@ function Profile() {
     const [newPassword, setNewPassword] = useState('');
     const [formData, setFormData] = useState({userId: userId, password: password, newPassword: newPassword});
     const [file, setFile] = useState();
-    const [uploadedFilePath, setUploadedFilePath] = useState(null);
     const [open, setOpen] = useState(false);
     const [imageOpen, setImageOpen] = useState(false);
 
@@ -65,6 +63,7 @@ function Profile() {
     const handleSubmit = (event) => {
         event.preventDefault();
         const p = document.getElementById("new-password").value;
+        setNewPassword(p);
         const o = document.getElementById("old-password").value;
         if (!isPlaintextPasswordInvalid(p)){
             setFormData({userId: userId, password: o, newPassword: p});
@@ -82,14 +81,15 @@ function Profile() {
             });
         }
         else {
-            alert("Password must be at least 8 characters and must include at least one upper-case letter, one lower-case letter, one numerical digit and one special character.")
+            alert("Password must be at least 8 characters and must include at least one upper-case letter, one lower-case letter, one numerical digit and one special character.");
+            document.getElementById("old-password").value = "";
+            document.getElementById("new-password").value = "";
         }
     };
 
     const handleChange = (event) => {
-        const { name, value } = event.target;
         const old = document.getElementById("old-password").value;
-        setFormData({userId: userId, password: old, newPassword: value});
+        setFormData({userId: userId, password: old, newPassword: event.target.value});
     };
 
     const handleFile = (e) => {
@@ -101,7 +101,7 @@ function Profile() {
         const fd = new FormData();
         fd.append('file', file);
         console.log(fd.getAll('file'));
-        if (file.type.split('/')[0] == 'image'){
+        if (file.type.split('/')[0] === 'image'){
             console.log("About to send...");
             api.post('/profile/updateImage', fd)
             .then((response) => {

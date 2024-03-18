@@ -124,7 +124,7 @@ exports.setNewPassword = async function (req,res) {
 
             // check if passwords are the same
             if (isPasswordSame){
-                return res.status(400).json({ error: "Passwords are the same, please try again" });
+                return res.status(400).json({ error: "Passwords are the same, please enter a new password that is different from the old one." });
             }
             
                 // hash a new salt for the new password

@@ -31,7 +31,7 @@ const AllChats = () => {
 
   useEffect(() => {
     fetchUserDetails();   
-  }, []);
+  });
   
 
   /**
