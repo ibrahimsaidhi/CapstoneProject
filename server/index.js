@@ -9,7 +9,9 @@ const userRoutes = require("./routes/users.js");
 const oneOnOneChatRoutes = require("./routes/oneOnOneChats.js");
 const groupChatsRoutes = require("./routes/groupChats.js");
 const uploadRoutes = require("./routes/upload.js");
-const scheduleMessageRoutes = require("./routes/scheduleMessages.js")
+const profileRoutes = require("./routes/profile.js");
+const scheduleMessageRoutes = require("./routes/scheduleMessages.js");
+
 const socketHandler = require("./socketHandler");
 const db_con = require("./connections.js");
 const http = require("http");
@@ -43,6 +45,8 @@ app.use("/api/groupChats", groupChatsRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/api/schedule', scheduleMessageRoutes);
+app.use("/api/profile", profileRoutes);
+app.use('/profileUploads', express.static(path.join(__dirname, 'profileUploads')));
 
 const server = http.createServer(app);
 

@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import '../styles/ModalStyles.css';
 import { useNavigate } from 'react-router-dom';
 import defaultAvatar from '../images/default_avatar.png';
 import groupChatIcon from '../images/group_icon.png';
 import '../styles/AllChats.css';
-import '../styles/NewChatModal.css';
-
 
 /**
  * Component that displays all the chats that the
@@ -31,9 +30,8 @@ const AllChats = () => {
   });
 
   useEffect(() => {
-    fetchUserDetails(); 
-    // eslint-disable-next-line react-hooks/exhaustive-deps  
-  }, []);
+    fetchUserDetails();   
+  });
   
 
   /**
@@ -225,8 +223,8 @@ const AllChats = () => {
   const ContactsModal = ({ isOpen, onClose, contacts }) => {
       if (!isOpen) return null;
       return (
-        <div className="new-chat-modal">
-          <div className="new-chat-modal-content">
+        <div className="modal">
+          <div className="modal-content">
             <span className="close" onClick={onClose}>&times;</span>
             {contacts.length === 0 ? (
               <p>No Contacts to Display</p>
@@ -250,32 +248,45 @@ const AllChats = () => {
       );
     };
 
-  return (
-    <div>
-      <h1>Your Chats</h1>
-      <button class="chatButton" onClick={handleNewChat}>New Chat</button>
-      <ContactsModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        contacts={contacts}
-        startChat={startChat}
-      />
-    <ul>
-      {chats.map((chat) => (
-        <li key={chat.chat_id} className="chat-item">
-          <img 
-            src={chat.chat_type === 'group' ? groupChatIcon : defaultAvatar} 
-            alt="" 
-            title={chat.chat_type === 'group' ? "Group Chat": "Direct Chat"}
-          />
-          <span className="username" onClick={() => continueChat(chat)} style={{cursor: 'pointer'}}>
-            {chat.recipient_username}
-          </span>
-        </li>
-      ))}
-    </ul>
-    </div>
-  );
+    return (
+      <div>
+        <h1>Your Chats</h1>
+        <button class="chatButton" onClick={handleNewChat}>New Chat</button>
+        <ContactsModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          contacts={contacts}
+          startChat={startChat}
+        />
+      <ul>
+        {chats.map((chat, index) => {
+          // debugging purposes 
+          console.log("Contacts Response Output: " + JSON.stringify(contacts, null, 2));
+          console.log("Chat Object Output: " + JSON.stringify(chat, null, 2));
+          const userContact = contacts.find(contact => contact.user_id === (chat.sender_id === userId ? chat.recipient_id : chat.sender_id));
+  
+          const profilePictureURL = userContact?.picture && userContact.picture !== "/path/pic1" 
+          ? `http://localhost:5000/profileUploads/${userContact.picture}` 
+          : defaultAvatar;
+
+  
+          return (
+            <li key={chat.chat_id} className="chat-item">
+              <img 
+                src={chat.chat_type === 'group' ? groupChatIcon : profilePictureURL}
+                alt="" 
+                title={chat.chat_type === 'group' ? "Group Chat" : "Direct Chat"}
+              />
+              <span className="username" onClick={() => continueChat(chat)} style={{cursor: 'pointer'}}>
+                {chat.recipient_username}
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+  
+      </div>
+    );
 }
 
 export default AllChats;
