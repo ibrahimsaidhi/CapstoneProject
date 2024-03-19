@@ -531,15 +531,6 @@ const Chat = ({socket}) => {
 
     // rendering the chat interface
     return (
-        sessionStorage.getItem("show") ? 
-            <div className="empty-chat">
-                <div className='empty'>
-                    <p className="empty-message">Send messages to your friends!</p>
-                    <p className='empty-message'>Click on any contact on the left to get started.</p>
-                    <p className='empty-message'>No contacts? Go to the contacts tab and start making friends!</p>
-                </div>
-            </div>
-            :
         <div className="chat-room">
             <ImageModal isOpen={isModalOpen} src={currentImageSrc} onClose={() => setIsModalOpen(false)} />
             <div className="chat-container">
