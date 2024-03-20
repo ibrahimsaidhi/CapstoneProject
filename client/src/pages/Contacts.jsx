@@ -15,7 +15,7 @@ function Contacts() {
 
 
     const api = axios.create({
-      baseURL: "https://parlons-f3439f765d73.herokuapp.com/api",
+      baseURL: "https://parlons-2977b2cfefba.herokuapp.com/api",
       withCredentials: true,
     });
 

@@ -9,7 +9,7 @@ import Chat from './pages/Chat';
 import ContactsPage from './pages/Contacts';
 import Profile from './pages/Profile';
 
-const socket = io("https://parlons-f3439f765d73.herokuapp.com")
+const socket = io("https://parlons-2977b2cfefba.herokuapp.com");
 
 function App() {
     return (
