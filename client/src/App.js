@@ -10,6 +10,7 @@ import ContactsPage from './pages/Contacts';
 import ActivatePage from './pages/Activate';
 import ResendActivationPage from './pages/ResendActivation';
 import ForgotPassword from "./pages/ForgotPassword";
+import Profile from './pages/Profile';
 
 const socket = io("http://localhost:5000")
 
@@ -25,6 +26,7 @@ function App() {
           <Route path="/" element={<HomePage />}>
             <Route path="/allchats" element={<AllChatsPage />} />
             <Route path="/contacts" element={<ContactsPage />} />
+            <Route path="/profile" element={<Profile />} />
           </Route>
           <Route path="/chat" element={<Chat socket={socket} />} />
         </Routes>

@@ -67,6 +67,8 @@ function Home() {
           &nbsp; &nbsp;
           <NavLink to="/contacts" activeClassName="active">Contacts</NavLink>
           &nbsp; &nbsp;
+          <NavLink to="/profile" activeClassName="active">Profile</NavLink>
+          &nbsp; &nbsp;
           <button onClick={handleLogout}>Logout</button>
         </NavbarItem>
       </Navbar>
