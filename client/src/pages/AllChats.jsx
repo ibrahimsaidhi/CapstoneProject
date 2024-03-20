@@ -25,7 +25,7 @@ const AllChats = () => {
    * enable cookies.
    */
   const api = axios.create({
-    baseURL: "http://localhost:5000/api",
+    baseURL: "https://parlons-f3439f765d73.herokuapp.com/api",
     withCredentials: true,
   });
 
@@ -41,7 +41,7 @@ const AllChats = () => {
    */
   const fetchUserDetails = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/user/details', { withCredentials: true });
+      const response = await axios.get('https://parlons-f3439f765d73.herokuapp.com/api/user/details', { withCredentials: true });
       console.log("User response: " + JSON.stringify(response, null, 2));
       setUserId(response.data.userId);
       fetchData(response.data.userId);
@@ -111,7 +111,7 @@ const AllChats = () => {
       userIds
     };
   
-    return axios.post('http://localhost:5000/api/oneOnOneChat/createOneOnOneChat', requestBody, { withCredentials: true })
+    return axios.post('https://parlons-f3439f765d73.herokuapp.com/api/oneOnOneChat/createOneOnOneChat', requestBody, { withCredentials: true })
       .then(response => {
         return response.data;
       })
@@ -132,7 +132,7 @@ const AllChats = () => {
       userIds
     };
   
-    return axios.post('http://localhost:5000/api/groupChats/createGroupChat', requestBody, { withCredentials: true })
+    return axios.post('https://parlons-f3439f765d73.herokuapp.com/api/groupChats/createGroupChat', requestBody, { withCredentials: true })
       .then(response => {
         return response.data;
       })
@@ -267,7 +267,7 @@ const AllChats = () => {
           const userContact = contacts.find(contact => contact.user_id === (chat.sender_id === userId ? chat.recipient_id : chat.sender_id));
   
           const profilePictureURL = userContact?.picture && userContact.picture !== "/path/pic1" 
-          ? `http://localhost:5000/profileUploads/${userContact.picture}` 
+          ? `https://parlons-f3439f765d73.herokuapp.com/profileUploads/${userContact.picture}` 
           : defaultAvatar;
 
   

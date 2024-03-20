@@ -143,7 +143,7 @@ const Chat = ({socket}) => {
      */
     const fetchScheduledMessages = async () => {
         try {
-            const response = await axios.get(`http://localhost:5000/api/schedule/${chatId}`, { withCredentials: true });
+            const response = await axios.get(`https://parlons-f3439f765d73.herokuapp.com/api/schedule/${chatId}`, { withCredentials: true });
             if (response.status === 200 && response.data.messages) {
                 const userScheduledMessages = response.data.messages.filter(message => message.sender_id === userId);
                 setScheduledMessages(userScheduledMessages);
@@ -159,7 +159,7 @@ const Chat = ({socket}) => {
     */
     const fetchUserDetails = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/api/user/details', { withCredentials: true });
+            const response = await axios.get('https://parlons-f3439f765d73.herokuapp.com/api/user/details', { withCredentials: true });
             console.log("User response: " + JSON.stringify(response, null, 2));
             setUserId(response.data.userId);
             setUsername(response.data.username);
@@ -208,7 +208,7 @@ const Chat = ({socket}) => {
      */
     const fetchMessages = async () => {
         try {
-            const response = await axios.get(`http://localhost:5000/api/messages/${chatId}`, { withCredentials: true });
+            const response = await axios.get(`https://parlons-f3439f765d73.herokuapp.com/api/messages/${chatId}`, { withCredentials: true });
             console.log("Messages fetched from the database: " + JSON.stringify(response, null, 2));
             const fetchedMessages = response.data;
             const updatedMessages = fetchedMessages.map(message => {
@@ -233,7 +233,7 @@ const Chat = ({socket}) => {
      */
     const fetchChatStatus = async () => {
         try {
-            const response = await axios.get(`http://localhost:5000/api/chats/${chatId}/status`, { withCredentials: true });
+            const response = await axios.get(`https://parlons-f3439f765d73.herokuapp.com/api/chats/${chatId}/status`, { withCredentials: true });
             return response.data.chatStatus;
     
         } catch (error) {
@@ -297,7 +297,7 @@ const Chat = ({socket}) => {
         formData.append('type', type);
     
         try {
-            const response = await axios.post('http://localhost:5000/api/upload/uploadFiles', formData, {
+            const response = await axios.post('https://parlons-f3439f765d73.herokuapp.com/api/upload/uploadFiles', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
@@ -339,7 +339,7 @@ const Chat = ({socket}) => {
         };
     
         try {
-            const response = await axios.post('http://localhost:5000/api/schedule/insertScheduledMessages', postData, { withCredentials: true });
+            const response = await axios.post('https://parlons-f3439f765d73.herokuapp.com/api/schedule/insertScheduledMessages', postData, { withCredentials: true });
     
             if (response.status === 200) {
                 console.log("Message scheduled: ", JSON.stringify(response.data));
