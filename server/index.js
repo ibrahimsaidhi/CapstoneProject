@@ -19,21 +19,21 @@ const cookieParser = require("cookie-parser");
 require("dotenv").config();
 
 // Enable CORS to accept the jwt cookie for api calls
-const corsOptions = {
-    origin: "https://parlons-capstone.netlify.app",
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-    allowedHeaders: [
-      "Content-Type",
-      "Authorization",
-      "Access-Control-Allow-Credentials",
-    ],
-  };
+// const corsOptions = {
+//     origin: "https://parlons-capstone.netlify.app",
+//     credentials: true,
+//     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+//     allowedHeaders: [
+//       "Content-Type",
+//       "Authorization",
+//       "Access-Control-Allow-Credentials",
+//     ],
+//   };
 
 const app = express();
 
 app.use(express.json());
-app.use(cors(corsOptions));
+app.use(cors());
 app.use(cookieParser());
 app.use("/api/auth", authenticationRoutes);
 app.use("/api/messages", chatRoutes);
