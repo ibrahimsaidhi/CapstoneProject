@@ -3,9 +3,9 @@ require("dotenv").config();
   
 let db_con = mysql.createConnection({
     host: "us-cluster-east-01.k8s.cleardb.net",
-    user: "b95c6c763e2d37",
-    password: "86c23689",
-    database: "heroku_fa1f51fe61c579e"
+    user: "bf05f17df90a01",
+    password: "2899c9c4",
+    database: "heroku_9bb8ea8d71b0c85"
   });
   
   db_con.connect((err) => {
