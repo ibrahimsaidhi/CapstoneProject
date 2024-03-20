@@ -75,7 +75,7 @@ const registration = async (req, res)  =>
           
           //asyncly gets all users with the specifed email
           usersWithSameEmail =await db_con.promise().query(
-            `SELECT * FROM webapp.users where email = ?`,[email]);
+            `SELECT * FROM users where email = ?`,[email]);
         
           //Check if there a user with the same email
           if(Object.keys(usersWithSameEmail[0]).length !== 0)
@@ -87,7 +87,7 @@ const registration = async (req, res)  =>
           
           //asyncly gets all users with the specifed username
           usersWithSameUsername = await db_con.promise().query(
-            `SELECT * FROM webapp.users where username = ?`,[username]);
+            `SELECT * FROM users where username = ?`,[username]);
           
            //Check if there a user with the same username
           if(Object.keys(usersWithSameUsername[0]).length !== 0)
@@ -111,7 +111,7 @@ const registration = async (req, res)  =>
               {
                   //asyncly inserts a new user row into the database
                   dataFromInsertingNewUser = await db_con.promise().query(
-                    `INSERT INTO webapp.users (username, email, name, password, picture)
+                    `INSERT INTO users (username, email, name, password, picture)
                     VALUES (?, ?, ?, ?, ?)`,[username, email, name, hash, picture]);
 
                   res.status(201).json({
