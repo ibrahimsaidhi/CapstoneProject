@@ -15,7 +15,5 @@ let db_con = mysql.createConnection({
       console.log("connected to Database");
     }
   });
-
-  mysql://b95c6c763e2d37:86c23689@us-cluster-east-01.k8s.cleardb.net/heroku_fa1f51fe61c579e?reconnect=true
   
   module.exports = db_con;
