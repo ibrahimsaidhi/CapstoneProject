@@ -19,16 +19,6 @@ const AllChats = () => {
 
   const navigate = useNavigate();
 
-  /**
-   * Makes API requests with a base URL and 
-   * withCredentials set to a value of true to 
-   * enable cookies.
-   */
-  const api = axios.create({
-    baseURL: "http://localhost:5000/api",
-    withCredentials: true,
-  });
-
   useEffect(() => {
     fetchUserDetails(); 
       // eslint-disable-next-line
@@ -58,9 +48,9 @@ const AllChats = () => {
    */
   const fetchData = async (userId) => {
     try {
-      const contactsResponse = await api.get('/contacts/all?type=friends');
-      const nonContactsResponse = await api.get('/contacts/all?type=non-friends');
-      const chatsResponse = await api.get(`/chats/${userId}`);
+      const contactsResponse = await axios.get('http://localhost:5000/api/contacts/all?type=friends', { withCredentials: true });
+      const nonContactsResponse = await axios.get('http://localhost:5000/api/contacts/all?type=non-friends', { withCredentials: true });
+      const chatsResponse = await axios.get(`http://localhost:5000/api/chats/${userId}`, { withCredentials: true });
       console.log("Contacts Response: ", JSON.stringify(contactsResponse, null, 2));
       console.log("Non-contacts Response: ", JSON.stringify(nonContactsResponse, null, 2));
       console.log("Chats Response: ", JSON.stringify(chatsResponse, null, 2));
@@ -252,7 +242,7 @@ const AllChats = () => {
     return (
       <div>
         <h1>Your Chats</h1>
-        <button class="chatButton" onClick={handleNewChat}>New Chat</button>
+        <button className="chatButton" onClick={handleNewChat}>New Chat</button>
         <ContactsModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
