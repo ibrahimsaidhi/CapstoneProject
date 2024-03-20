@@ -14,7 +14,7 @@ const getUserDetails = async (req, res) => {
         const userId = req.userId;
 
         const userDetails = await db_con.promise().query(
-            `SELECT username, email, name FROM webapp.users WHERE user_id = ?`, [userId]
+            `SELECT username, email, name FROM users WHERE user_id = ?`, [userId]
         );
 
         // Check if user details were found

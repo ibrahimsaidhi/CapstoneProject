@@ -60,7 +60,7 @@ exports.getStatus =  async (req, res)  =>
         const chatId = req.params.chatId;
           
         chatStatusData = await db_con.promise().query(
-            `SELECT status FROM webapp.chat WHERE chat_id = ?`,[chatId]
+            `SELECT status FROM chat WHERE chat_id = ?`,[chatId]
           );  
 
         res.status(200).json({
