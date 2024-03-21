@@ -23,6 +23,7 @@ const authenticateRoute = (req, res, next) => {
 
             //ensures request api will only use userId from token. Provides extra security such that havin access to token can allow for making calls for any other user
             req.userId = data.id
+            
             next();
         } 
         catch (error) 
