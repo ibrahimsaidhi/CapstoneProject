@@ -42,7 +42,6 @@ function Contacts() {
         })
         .catch((error) => {
           console.log(error);
-          alert("Error. " + error.response.data.message);
         });
 
         api.get('/contacts/all?type=outgoing')
@@ -51,7 +50,6 @@ function Contacts() {
         })
         .catch((error) => {
           console.log(error);
-          alert("Error. " + error.response.data.message);
         });
 
         api.get('/contacts/all?type=blocked')
@@ -60,7 +58,6 @@ function Contacts() {
         })
         .catch((error) => {
           console.log(error);
-          alert("Error. " + error.response.data.message);
         });
       }
 
