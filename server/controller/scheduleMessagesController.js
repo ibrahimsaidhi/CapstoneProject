@@ -70,4 +70,29 @@ async function getScheduledMessages(req, res) {
     }
 }
 
-module.exports = { insertScheduledMessages, getScheduledMessages };
+/**
+ * Deletes a scheduled message from the database.
+ * @param {Object} req - The request object received from the client.
+ * @param {Object} res - The response object that sends back data to the client.
+ */
+async function deleteScheduledMessage(req, res) {
+    const { messageId } = req.params;
+
+    try {
+        const [result] = await db_con.promise().query(`
+            DELETE FROM message WHERE message_id = ? AND status = 'pending'
+        `, [messageId]);
+
+        if (result.affectedRows > 0) {
+            res.json({ success: true, message: "Scheduled message cancelled." });
+        } else {
+            res.status(404).send("Message not found or already sent.");
+        }
+    } catch (error) {
+        console.error("Error deleting scheduled message: ", error);
+        res.status(500).send("Internal Server Error");
+    }
+}
+
+module.exports = { insertScheduledMessages, getScheduledMessages, deleteScheduledMessage };
+

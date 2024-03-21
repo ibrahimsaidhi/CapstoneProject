@@ -26,3 +26,28 @@ exports.getMessages = function(req, res) {
         res.json(messages);
     });
 };
+
+/**
+ * Fetches the participants of a chat along with their usernames from the database for a particular chat id.
+ * @param {Object} req - The request object received from the client
+ * @param {Object} res - The response object that sends back data to the client
+ */
+exports.getChatParticipants = async function(req, res) {
+    const chatId = req.params.chatId;
+
+    try {
+        const [participants] = await db_con.promise().query(`
+            SELECT u.user_id, u.name, u.username
+            FROM chat_participants cp
+            JOIN users u ON cp.user_id = u.user_id
+            WHERE cp.chat_id = ?
+        `, [chatId]);
+
+        res.json({ participants: participants });
+    } catch (error) {
+        console.error("Error fetching chat participants: ", error);
+        res.status(500).send("Internal Server Error");
+    }
+};
+
+

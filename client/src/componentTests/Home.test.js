@@ -3,7 +3,7 @@ import { render, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import '@testing-library/jest-dom/extend-expect';
 import mockAxios from 'jest-mock-axios';
-import Home from './Home';
+import Home from '../pages/Home';
 
 // Mock modules
 jest.mock('axios', () => mockAxios);
