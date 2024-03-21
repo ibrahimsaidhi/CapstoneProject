@@ -11,7 +11,7 @@ function Login() {
   const [successMessage, setSuccessMessage] = useState('');
   
   const api = axios.create({
-    baseURL: process.env.baseURL,
+    baseURL: "https://parlons-2977b2cfefba.herokuapp.com/api",
     withCredentials: true,  
   });
 
@@ -24,10 +24,8 @@ function Login() {
       password: password,
     };
 
-    console.log(api.baseURL);
     api.post('/auth/login', userData)
       .then((response) => {
-        console.log(api.baseURL);
         sessionStorage.setItem("name", response.data.userInfo.name);
         sessionStorage.setItem("token", response.data.token);
         setErrorMessage('');
@@ -35,7 +33,6 @@ function Login() {
         setTimeout(() => navigate('/'), 1000);
       })
       .catch((error) => {
-        console.log(api.baseURL);
         setErrorMessage(error.response.data.error);
         setUsername('');
         setPassword('');
