@@ -21,8 +21,14 @@
     width: 100vw;
     height: 100vh;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
+  }
+  .parlons-image {
+    margin-bottom: 20px;
+    width: auto; 
+    max-height: 100%;
   }
 
   .loginSquare {
