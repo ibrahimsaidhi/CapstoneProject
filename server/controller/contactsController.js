@@ -4,8 +4,8 @@ const db_con = require("../connections");
 const findChatSessionQuery = `
 SELECT c.chat_id
 FROM chat c
-JOIN message m ON c.message_id = m.message_id
-WHERE (m.sender_id = ? AND m.recipient_id = ?) OR (m.sender_id = ? AND m.recipient_id = ?)
+JOIN message m ON c.chat_id = m.chat_id
+WHERE ((m.sender_id = ? AND m.recipient_id = ?) OR (m.sender_id = ? AND m.recipient_id = ?)) AND c.chat_type="one-on-one"
 LIMIT 1`;
 
 /**
@@ -34,44 +34,44 @@ const getAll = async (req, res)  =>
         {
           case "friends":
              contactData = await db_con.promise().query(
-              `Select users.name, users.username, users.picture, users.user_id from webapp.users INNER JOIN
+              `Select users.name, users.username, users.picture, users.user_id from users INNER JOIN
               (SELECT contacts.friend_id
-              FROM webapp.contacts where user_id = ?  and status = "friends"
+              FROM contacts where user_id = ?  and status = "friends"
               UNION 
               SELECT contacts.user_id
-              FROM webapp.contacts where friend_id = ? and status = "friends") t2  ON users.user_id = t2.friend_id`,[id, id]
+              FROM contacts where friend_id = ? and status = "friends") t2  ON users.user_id = t2.friend_id`,[id, id]
             );
             break;
             
           case "incoming":
             contactData = await db_con.promise().query(
-              `Select users.name, users.username, users.picture, users.user_id from webapp.users INNER JOIN
+              `Select users.name, users.username, users.picture, users.user_id from users INNER JOIN
               (SELECT contacts.user_id
-              FROM webapp.contacts where friend_id = ?  and status = "pending") t2  ON users.user_id = t2.user_id`,[id]
+              FROM contacts where friend_id = ?  and status = "pending") t2  ON users.user_id = t2.user_id`,[id]
             );
             break;
           case "outgoing":
             contactData = await db_con.promise().query(
-              `Select users.name, users.username, users.picture, users.user_id from webapp.users INNER JOIN
+              `Select users.name, users.username, users.picture, users.user_id from users INNER JOIN
               (SELECT contacts.friend_id
-              FROM webapp.contacts where user_id = ?  and status = "pending") t2  ON users.user_id = t2.friend_id`,[id]
+              FROM contacts where user_id = ?  and status = "pending") t2  ON users.user_id = t2.friend_id`,[id]
             );
             break;
           case "blocked":
             contactData = await db_con.promise().query(
-              `Select users.name, users.username, users.picture, users.user_id from webapp.users INNER JOIN
+              `Select users.name, users.username, users.picture, users.user_id from users INNER JOIN
               (SELECT contacts.friend_id
-              FROM webapp.contacts where user_id = ?  and status = "blocked") t2  ON users.user_id = t2.friend_id`,[id]
+              FROM contacts where user_id = ?  and status = "blocked") t2  ON users.user_id = t2.friend_id`,[id]
             );
             break;
           case "non-friends":
             contactData = await db_con.promise().query(
-              `Select users.name, users.username, users.picture, users.user_id from webapp.users LEFT JOIN
+              `Select users.name, users.username, users.picture, users.user_id from users LEFT JOIN
               (SELECT contacts.friend_id
-              FROM webapp.contacts where user_id = ? and status = "friend"
+              FROM contacts where user_id = ? and status = "friend"
               UNION 
               SELECT contacts.user_id
-              FROM webapp.contacts where friend_id = ? and status = "friend") t2  ON users.user_id = t2.friend_id where status = \"active\" and t2.friend_id is null and users.user_id  <> ?`,[id, id, id]
+              FROM contacts where friend_id = ? and status = "friend") t2  ON users.user_id = t2.friend_id where status = \"active\" and t2.friend_id is null and users.user_id  <> ?`,[id, id, id]
             );
             break;
           default:
@@ -119,12 +119,12 @@ const searchNewContact = async (req, res)  =>
 
         //SQL request to get username, picture and userId of all users with username containin the search term and that is not already a contact of the user
         const contactData = await db_con.promise().query(
-          `Select users.name, users.username, users.picture, users.user_id from webapp.users LEFT JOIN
+          `Select users.name, users.username, users.picture, users.user_id from users LEFT JOIN
           (SELECT contacts.friend_id
-          FROM webapp.contacts where user_id = ?
+          FROM contacts where user_id = ?
           UNION 
           SELECT contacts.user_id
-          FROM webapp.contacts where friend_id = ?) t2  ON users.user_id = t2.friend_id where status = \"active\" and t2.friend_id is null and users.user_id  <> ? and users.username LIKE ?`,[id, id, id, searchTerm]
+          FROM contacts where friend_id = ?) t2  ON users.user_id = t2.friend_id where status = \"active\" and t2.friend_id is null and users.user_id  <> ? and users.username LIKE ?`,[id, id, id, searchTerm]
         );
 
         //Return to client, the users that have the specified term in their username and not in contacts
@@ -156,7 +156,7 @@ async function getUserAndContactRelation(userId, friendUsername)
 {
     //SQL to get database data for that friendUsername
     const friendData = await db_con.promise().query(
-      `SELECT * FROM webapp.users where username = ?`,[friendUsername]
+      `SELECT * FROM users where username = ?`,[friendUsername]
       );
 
     //check if friendUsername is not found in database
@@ -180,7 +180,7 @@ async function getUserAndContactRelation(userId, friendUsername)
     
 
     const userAndFriendData = await db_con.promise().query(
-     `select * from webapp.contacts where (user_id = ? and friend_id = ?) or (user_id = ? and friend_id = ?)`,[userId, friendId, friendId, userId]
+     `select * from contacts where (user_id = ? and friend_id = ?) or (user_id = ? and friend_id = ?)`,[userId, friendId, friendId, userId]
       );
 
     //check if user has no relation with friend
@@ -241,7 +241,7 @@ const sendRequest = async (req, res)  =>
         if (userAndContactResultSet.result === false)
         {
             const contactData = await db_con.promise().query(
-                        `INSERT INTO webapp.contacts (user_id, friend_id, status) VALUES (?, ?, "pending")`,[userId, friendId]
+                        `INSERT INTO contacts (user_id, friend_id, status) VALUES (?, ?, "pending")`,[userId, friendId]
                         );
                       
             //Return to client, that the request was successful
@@ -394,7 +394,7 @@ const sendRequest = async (req, res)  =>
                   chatId = findChatSessionData[0][0].chat_id;
       
                   //update chat db, to change status of the existing chat to active since the users are friends now
-                  const updateChatsQuery = await db_con.promise().query(`update webapp.chat set status = "inactive" where chat_id = ?`,[chatId]);
+                  const updateChatsQuery = await db_con.promise().query(`update chat set status = "inactive" where chat_id = ?`,[chatId]);
                 }
               }
               else
@@ -428,7 +428,7 @@ const sendRequest = async (req, res)  =>
           
           //if no error message, it deletes the row for user and friends in contacts db 
           const deleteQuery = await db_con.promise().query(
-            `Delete from webapp.contacts where (user_id = ? and friend_id = ?) or (user_id = ? and friend_id = ?)`,[userId, friendId, friendId, userId]
+            `Delete from contacts where (user_id = ? and friend_id = ?) or (user_id = ? and friend_id = ?)`,[userId, friendId, friendId, userId]
           );
 
           if(isTransaction)
@@ -536,12 +536,12 @@ const sendRequest = async (req, res)  =>
             chatId = findChatSessionData[0][0].chat_id;
 
             //update chat db, to change status of the existing chat to active since the users are friends now
-            const updateChatsQuery = await db_con.promise().query(`update webapp.chat set status = "active" where chat_id = ?`,[chatId]);
+            const updateChatsQuery = await db_con.promise().query(`update chat set status = "active" where chat_id = ?`,[chatId]);
           }
 
           //Updates the contacts db, with the new status of their relationship
           const updateContactsQuery = await db_con.promise().query(
-            `update webapp.contacts set status = "friends" where (user_id = ? and friend_id = ?) or (user_id = ? and friend_id = ?)`,[userId, friendId, friendId, userId]
+            `update contacts set status = "friends" where (user_id = ? and friend_id = ?) or (user_id = ? and friend_id = ?)`,[userId, friendId, friendId, userId]
           );
 
            if(isTransaction)
@@ -620,7 +620,7 @@ const sendRequest = async (req, res)  =>
           if (userAndContactResultSet.result === false)
           {
             const contactData = await db_con.promise().query(
-              `INSERT INTO webapp.contacts (user_id, friend_id, status) VALUES (?, ?, "blocked")`,[userId, friendId]
+              `INSERT INTO contacts (user_id, friend_id, status) VALUES (?, ?, "blocked")`,[userId, friendId]
               );          
           }
           else
@@ -651,11 +651,11 @@ const sendRequest = async (req, res)  =>
                 chatId = findChatSessionData[0][0].chat_id;
     
                 //update chat db, to change status of the existing chat to active since the users are friends now
-                const updateChatsQuery = await db_con.promise().query(`update webapp.chat set status = "inactive" where chat_id = ?`,[chatId]);
+                const updateChatsQuery = await db_con.promise().query(`update chat set status = "inactive" where chat_id = ?`,[chatId]);
               }
 
               const updateQuery = await db_con.promise().query(
-                `update webapp.contacts set status = "blocked", user_id = ?, friend_id = ? where (user_id = ? and friend_id = ?) or (user_id = ? and friend_id = ?)`,[userId, friendId, userId, friendId, friendId, userId]
+                `update contacts set status = "blocked", user_id = ?, friend_id = ? where (user_id = ? and friend_id = ?) or (user_id = ? and friend_id = ?)`,[userId, friendId, userId, friendId, friendId, userId]
               );
             }
             else

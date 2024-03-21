@@ -4,6 +4,7 @@
  */
 
 const { Server } = require("socket.io");
+require("dotenv").config();
 
 /**
  * Delivers and receives messages using sockets for
@@ -14,7 +15,7 @@ const { Server } = require("socket.io");
 const socketHandler = (server, db_con) => {
   const io = new Server(server, {
     cors: {
-      origin: "http://localhost:3000",
+      origin: process.env.CLIENT_URL,
       methods: ["GET", "POST"]
     }
   });

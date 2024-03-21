@@ -12,7 +12,7 @@ import ResendActivationPage from './pages/ResendActivation';
 import ForgotPassword from "./pages/ForgotPassword";
 import Profile from './pages/Profile';
 
-const socket = io("http://localhost:5000")
+const socket = io(`${process.env.REACT_APP_PARLONS_PROFILE_URL}`);
 
 function App() {
     return (

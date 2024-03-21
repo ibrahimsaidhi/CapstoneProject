@@ -15,7 +15,7 @@ function Contacts() {
 
 
     const api = axios.create({
-      baseURL: "http://localhost:5000/api",
+      baseURL: process.env.REACT_APP_PARLONS_URL,
       withCredentials: true,
     });
 
@@ -184,9 +184,9 @@ function Contacts() {
                 <li key={user.id}>
                   <img className="profile-image"
                     src={defaultAvatar} 
-                    alt={`${user.name}'s profile`} 
+                    alt={`${user.username}'s profile`} 
                   />
-                  {user.name} &nbsp;
+                  {user.username} &nbsp;
                   <button onClick={() => sendRequest(user.username)}>Add Friend</button>
                 </li>
               ))}
@@ -199,17 +199,23 @@ function Contacts() {
             <p>No contacts</p>
           ) : (
             <ul>
-              {data.map((user) => (
-                <li key={user.id}>
-                    <img className="profile-image"
-                      src={defaultAvatar} 
-                      alt={`${user.name}'s profile`} 
-                    />
-                    {user.name} &nbsp;
-                    <button onClick={() => removeFromContacts(user.username)}>Remove Friend</button>
-                    <button onClick={() => block(user.username)}>Block</button>
-                </li>
-              ))}
+              {data.map((user) => {
+
+                const profilePictureURL = user?.picture && user.picture !== "/path/pic1" 
+                ? `${process.env.REACT_APP_PARLONS_PROFILE_URL}/profileUploads/${user.picture}` 
+                : defaultAvatar;
+                return (
+                  <li key={user.id}>
+                      <img className="profile-image"
+                        src={profilePictureURL}
+                        alt={`${user.name}'s profile`} 
+                      /> &nbsp;&nbsp;
+                      {user.name} &nbsp;
+                      <button onClick={() => removeFromContacts(user.username)}>Remove Friend</button>
+                      <button onClick={() => block(user.username)}>Block</button>
+                  </li>
+                )
+              })}
             </ul>
           )}
         </div>
@@ -223,9 +229,9 @@ function Contacts() {
                 <li key={user.id}>
                   <img className="profile-image"
                     src={defaultAvatar} 
-                    alt={`${user.name}'s profile`} 
+                    alt={`${user.username}'s profile`} 
                   />
-                  {user.name} &nbsp;
+                  {user.username} &nbsp;
                   <button onClick={() => acceptRequest(user.username)}>Accept</button>
                   <button onClick={() => declineRequest(user.username)}>Decline</button>
                 </li>
@@ -243,9 +249,9 @@ function Contacts() {
                 <li key={user.id}>
                   <img className="profile-image"
                     src={defaultAvatar} 
-                    alt={`${user.name}'s profile`} 
+                    alt={`${user.username}'s profile`} 
                   />
-                  {user.name} &nbsp;
+                  {user.username} &nbsp;
                   <button onClick={() => rescindRequest(user.username)}>Cancel</button>
                 </li>
               ))}
@@ -262,9 +268,9 @@ function Contacts() {
                 <li key={user.id}>
                   <img className="profile-image"
                     src={defaultAvatar} 
-                    alt={`${user.name}'s profile`} 
+                    alt={`${user.username}'s profile`} 
                   />
-                  {user.name} &nbsp;
+                  {user.username} &nbsp;
                   <button onClick={() => unblock(user.username)}>Unblock</button>
                 </li>
               ))}

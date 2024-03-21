@@ -52,6 +52,8 @@ const login = (req, res) => {
   
       // Set the JWT as an HTTP-only cookie for added security
       res.cookie("accessToken", token, {
+        sameSite: 'none',
+        secure: true,
         httpOnly: true,
         maxAge: cookieExp * 1000,
       });
@@ -86,7 +88,7 @@ const registration = async (req, res)  =>
           
           //asyncly gets all users with the specifed email
           usersWithSameEmail =await db_con.promise().query(
-            `SELECT * FROM webapp.users where email = ?`,[email]);
+            `SELECT * FROM users where email = ?`,[email]);
         
           //Check if there a user with the same email
           if(Object.keys(usersWithSameEmail[0]).length !== 0)
@@ -98,7 +100,7 @@ const registration = async (req, res)  =>
           
           //asyncly gets all users with the specifed username
           usersWithSameUsername = await db_con.promise().query(
-            `SELECT * FROM webapp.users where username = ?`,[username]);
+            `SELECT * FROM users where username = ?`,[username]);
           
            //Check if there a user with the same username
           if(Object.keys(usersWithSameUsername[0]).length !== 0)
@@ -122,7 +124,7 @@ const registration = async (req, res)  =>
               {
                   //asyncly inserts a new user row into the database
                   dataFromInsertingNewUser = await db_con.promise().query(
-                    `INSERT INTO webapp.users (username, email, name, password, picture, status)
+                    `INSERT INTO users (username, email, name, password, picture, status)
                     VALUES (?, ?, ?, ?, ?, 'inactive')`,[username, email, name, hash, picture]);
 
                   // Generate a JSON Web Token (JWT) with the user's ID
@@ -137,7 +139,7 @@ const registration = async (req, res)  =>
                     subject: `Welcome to Parlons`,
                     context: {
                       name: name,
-                      link: 'https://parlons-capstone.netlify.app/activate?code='+token
+                      link: process.env.CLIENT_URL+'/activate?code='+token
                     },
                     attachments: [{
                       filename: 'image.png',
@@ -331,7 +333,7 @@ const resendActivation = (req, res) => {
       subject: `Welcome to Parlons`,
       context: {
         name: data[0].name,
-        link: 'https://parlons-capstone.netlify.app/activate?code='+token
+        link: process.env.CLIENT_URL+'/activate?code='+token
       },
       attachments: [{
         filename: 'image.png',
@@ -380,7 +382,7 @@ const forgotPassword = (req, res) => {
       subject: `Reset Password`,
       context: {
         name: data[0].name,
-        link: 'https://parlons-capstone.netlify.app/forgot-password?code='+token
+        link: process.env.CLIENT_URL+'/forgot-password?code='+token
       },
       attachments: [{
         filename: 'image.png',
