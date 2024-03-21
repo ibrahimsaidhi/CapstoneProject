@@ -11,7 +11,7 @@ function Login() {
   const [successMessage, setSuccessMessage] = useState('');
   
   const api = axios.create({
-    baseURL: "https://parlons-2977b2cfefba.herokuapp.com/api",
+    baseURL: process.env.PARLONS_URL,
     withCredentials: true,  
   });
 
