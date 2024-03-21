@@ -24,8 +24,10 @@ function Login() {
       password: password,
     };
 
+    console.log(api.baseURL);
     api.post('/auth/login', userData)
       .then((response) => {
+        console.log(api.baseURL);
         sessionStorage.setItem("name", response.data.userInfo.name);
         sessionStorage.setItem("token", response.data.token);
         setErrorMessage('');
@@ -33,6 +35,7 @@ function Login() {
         setTimeout(() => navigate('/'), 1000);
       })
       .catch((error) => {
+        console.log(api.baseURL);
         setErrorMessage(error.response.data.error);
         setUsername('');
         setPassword('');
