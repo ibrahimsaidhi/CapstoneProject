@@ -40,7 +40,7 @@ describe('Chat Component', () => {
 
   it('renders Chat component', async () => {
     mockAxios.get.mockImplementation(url => {
-      if (url === 'http://localhost:5000/api/user/details') {
+      if (url.includes('/api/user/details')) {
         return Promise.resolve({
           data: {
             userId: 10,
@@ -50,7 +50,7 @@ describe('Chat Component', () => {
           },
         });
       }
-      if (url.startsWith('http://localhost:5000/api/messages/getParticipants')) {
+      if (url.includes('/api/messages/getParticipants')) {
         return Promise.resolve({
           data: {
             "participants": [
@@ -73,7 +73,7 @@ describe('Chat Component', () => {
           },
         });
       }
-      if (url.startsWith('http://localhost:5000/api/messages/')) {
+      if (url.includes('/api/messages/')) {
         return Promise.resolve({
           data: [
             {
@@ -93,7 +93,7 @@ describe('Chat Component', () => {
           ],
         });
       }
-      if (url.startsWith('http://localhost:5000/api/schedule/')) {
+      if (url.includes('/api/schedule/')) {
         return Promise.resolve({
             "data": {
               "messages": [
@@ -123,7 +123,7 @@ describe('Chat Component', () => {
 
   it('allows users to type a message and send', async () => {
     mockAxios.get.mockImplementation(url => {
-      if (url === 'http://localhost:5000/api/user/details') {
+      if (url.includes('/api/user/details')) {
         return Promise.resolve({
           data: {
             userId: 10,
@@ -133,7 +133,7 @@ describe('Chat Component', () => {
           },
         });
       }
-      if (url.startsWith('http://localhost:5000/api/messages/getParticipants')) {
+      if (url.includes('/api/messages/getParticipants')) {
         return Promise.resolve({
           data: {
             "participants": [
@@ -156,7 +156,7 @@ describe('Chat Component', () => {
           },
         });
       }
-      if (url.startsWith('http://localhost:5000/api/messages/')) {
+      if (url.includes('/api/messages/')) {
         return Promise.resolve({
           data: [
             {
@@ -176,7 +176,7 @@ describe('Chat Component', () => {
           ],
         });
       }
-      if (url.startsWith('http://localhost:5000/api/schedule/')) {
+      if (url.includes('/api/schedule/')) {
         return Promise.resolve({
             "data": {
               "messages": [
@@ -197,7 +197,7 @@ describe('Chat Component', () => {
             }         
         })
       }
-      if (url === `http://localhost:5000/api/chats/123/status`) {
+      if (url === `/api/chats/123/status`) {
         return Promise.resolve({
           data: {
             chatStatus: "active"
@@ -224,7 +224,7 @@ describe('Chat Component', () => {
 
   it('fetches user details and messages on mount', async () => {
     mockAxios.get.mockImplementation(url => {
-      if (url === 'http://localhost:5000/api/user/details') {
+      if (url.includes('/api/user/details')) {
         return Promise.resolve({
           data: {
             userId: 10,
@@ -234,7 +234,7 @@ describe('Chat Component', () => {
           },
         });
       }
-      if (url.startsWith('http://localhost:5000/api/messages/getParticipants')) {
+      if (url.includes('/api/messages/getParticipants')) {
         return Promise.resolve({
           data: {
             "participants": [
@@ -257,7 +257,7 @@ describe('Chat Component', () => {
           },
         });
       }
-      if (url.startsWith('http://localhost:5000/api/messages/')) {
+      if (url.includes('/api/messages/')) {
         return Promise.resolve({
           data: [
             {
@@ -277,7 +277,7 @@ describe('Chat Component', () => {
           ],
         });
       }
-      if (url.startsWith('http://localhost:5000/api/schedule/')) {
+      if (url.includes('/api/schedule/')) {
         return Promise.resolve({
             "data": {
               "messages": [
@@ -298,7 +298,7 @@ describe('Chat Component', () => {
             }         
         })
       }
-      if (url === `http://localhost:5000/api/chats/123/status`) {
+      if (url.includes(`/api/chats/123/status`)) {
         return Promise.resolve({
           data: {
             chatStatus: "active"
@@ -314,7 +314,7 @@ describe('Chat Component', () => {
 
   it('handles file upload when a file is selected', async () => {
     mockAxios.get.mockImplementation(url => {
-      if (url === 'http://localhost:5000/api/user/details') {
+      if (url.includes('/api/user/details')) {
         return Promise.resolve({
           data: {
             userId: 10,
@@ -324,7 +324,7 @@ describe('Chat Component', () => {
           },
         });
       }
-      if (url.startsWith('http://localhost:5000/api/messages/getParticipants')) {
+      if (url.includes('/api/messages/getParticipants')) {
         return Promise.resolve({
           data: {
             "participants": [
@@ -347,7 +347,7 @@ describe('Chat Component', () => {
           },
         });
       }
-      if (url.startsWith('http://localhost:5000/api/messages/')) {
+      if (url.includes('/api/messages/')) {
         return Promise.resolve({
           data: [
             {
@@ -367,7 +367,7 @@ describe('Chat Component', () => {
           ],
         });
       }
-      if (url.startsWith('http://localhost:5000/api/schedule/')) {
+      if (url.includes('/api/schedule/')) {
         return Promise.resolve({
             "data": {
               "messages": [
@@ -388,7 +388,7 @@ describe('Chat Component', () => {
             }         
         })
       }
-      if (url === `http://localhost:5000/api/chats/123/status`) {
+      if (url.includes(`/api/chats/123/status`)) {
         return Promise.resolve({
           data: {
             chatStatus: "active"
@@ -399,7 +399,7 @@ describe('Chat Component', () => {
     });
 
     mockAxios.post.mockImplementation(url => {
-      if (url === `http://localhost:5000/api/upload/uploadFiles`) {
+      if (url.includes(`/api/upload/uploadFiles`)) {
         return Promise.resolve({
           data: {
             filePath: '/uploads/test.png'
@@ -423,7 +423,7 @@ describe('Chat Component', () => {
 
   it('renders scheduled messages correctly', async () => {
     mockAxios.get.mockImplementation(url => {
-      if (url === 'http://localhost:5000/api/user/details') {
+      if (url.includes('/api/user/details')) {
         return Promise.resolve({
           data: {
             userId: 10,
@@ -433,7 +433,7 @@ describe('Chat Component', () => {
           },
         });
       }
-      if (url.startsWith('http://localhost:5000/api/messages/getParticipants')) {
+      if (url.includes('/api/messages/getParticipants')) {
         return Promise.resolve({
           data: {
             "participants": [
@@ -456,7 +456,7 @@ describe('Chat Component', () => {
           },
         });
       }
-      if (url.startsWith('http://localhost:5000/api/messages/')) {
+      if (url.includes('/api/messages/')) {
         return Promise.resolve({
           data: [
             {
@@ -476,7 +476,7 @@ describe('Chat Component', () => {
           ],
         });
       }
-      if (url.startsWith('http://localhost:5000/api/schedule/')) {
+      if (url.includes('/api/schedule/')) {
         return Promise.resolve({
             "data": {
               "messages": [
@@ -498,7 +498,7 @@ describe('Chat Component', () => {
             status: 200      
         })
       }
-      if (url === `http://localhost:5000/api/chats/123/status`) {
+      if (url.includes(`/api/chats/123/status`)) {
         return Promise.resolve({
           data: {
             chatStatus: "active"
@@ -509,7 +509,7 @@ describe('Chat Component', () => {
     });
 
     mockAxios.post.mockImplementation(url => {
-      if (url === `http://localhost:5000/api/upload/uploadFiles`) {
+      if (url.includes(`/api/upload/uploadFiles`)) {
         return Promise.resolve({
           data: {
             filePath: '/uploads/test.png'
@@ -544,7 +544,7 @@ describe('Chat Component', () => {
 
   it('sends a message with a delay when scheduled', async () => {
     mockAxios.get.mockImplementation(url => {
-      if (url === 'http://localhost:5000/api/user/details') {
+      if (url.includes('/api/user/details')) {
         return Promise.resolve({
           data: {
             userId: 10,
@@ -554,7 +554,7 @@ describe('Chat Component', () => {
           },
         });
       }
-      if (url.startsWith('http://localhost:5000/api/messages/getParticipants')) {
+      if (url.includes('/api/messages/getParticipants')) {
         return Promise.resolve({
           data: {
             "participants": [
@@ -577,7 +577,7 @@ describe('Chat Component', () => {
           },
         });
       }
-      if (url.startsWith('http://localhost:5000/api/messages/')) {
+      if (url.includes('/api/messages/')) {
         return Promise.resolve({
           data: [
             {
@@ -597,7 +597,7 @@ describe('Chat Component', () => {
           ],
         });
       }
-      if (url.startsWith('http://localhost:5000/api/schedule/')) {
+      if (url.includes('/api/schedule/')) {
         return Promise.resolve({
             "data": {
               "messages": [
@@ -619,7 +619,7 @@ describe('Chat Component', () => {
             status: 200      
         })
       }
-      if (url === `http://localhost:5000/api/chats/123/status`) {
+      if (url.includes(`/api/chats/123/status`)) {
         return Promise.resolve({
           data: {
             chatStatus: "active"
@@ -630,14 +630,14 @@ describe('Chat Component', () => {
     });
 
     mockAxios.post.mockImplementation(url => {
-      if (url === `http://localhost:5000/api/upload/uploadFiles`) {
+      if (url.includes(`/api/upload/uploadFiles`)) {
         return Promise.resolve({
           data: {
             filePath: '/uploads/test.png'
           }
         });
       }   
-      if (url === `http://localhost:5000/api/schedule/insertScheduledMessages`) {
+      if (url.includes(`/api/schedule/insertScheduledMessages`)) {
         return Promise.resolve({
           data: {
             "success":true,
