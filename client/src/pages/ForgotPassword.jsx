@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import '../styles/ForgotPassword.css';
+import logo from "../images/parlons_logo.png";
 
 function ForgotPassword() {
 
@@ -42,7 +43,7 @@ function ForgotPassword() {
       api.post('/auth/forgot-password', userData)
       .then((response) => {
         setSuccessMessage('An email has been sent to reset your password');
-        setTimeout(() => navigate('/'), 1000);
+        setTimeout(() => navigate('/login'), 1000);
       })
       .catch((error) => {
         setErrorMessage(error.response.data.error);
@@ -87,6 +88,12 @@ function ForgotPassword() {
 
   return (
     <div className="background">
+      <div className="logo">
+        <img className="parlons-image"
+                        src={logo} 
+                        alt={'parlons'} 
+        />
+      </div>
       <div className="forgotPasswordSquare">
         <h1>Forgot Your Password?</h1>
         {!code && <p>Please enter the email you used to sign in to Parlons</p>}

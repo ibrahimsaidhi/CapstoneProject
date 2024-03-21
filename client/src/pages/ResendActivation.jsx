@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import '../styles/ResendActivation.css';
+import logo from "../images/parlons_logo.png";
 
 function ResendActivation() {
   const [username, setUsername] = useState('');
@@ -45,6 +46,12 @@ function ResendActivation() {
 
   return (
     <div className="background">
+      <div className="logo">
+        <img className="parlons-image"
+                        src={logo} 
+                        alt={'parlons'} 
+        />
+      </div>
       <div className="resendSquare">
         <h1>Activation Code Request</h1>
         <p>If you did not receive an e-mail to activate your account or your link expired, enter your username, password and email address here to receive a new activation link</p>

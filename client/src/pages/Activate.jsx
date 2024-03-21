@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, useSearchParams, } from 'react-router-dom';
+import logo from "../images/parlons_logo.png";
 
 function Activate() {
   const [queryParameters] = useSearchParams();
@@ -30,12 +31,12 @@ function Activate() {
             })
             .catch((error) => {
               setErrorMessage("fail:"+error.response.data.message);
-              setTimeout(() => navigate('/'), 3000);
+              setTimeout(() => navigate('/login'), 3000);
             });
         }
         else
         {
-          navigate('/')
+          navigate('/login')
         }
         
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -44,6 +45,12 @@ function Activate() {
 
   return (
     <div className="background">
+      <div className="logo">
+        <img className="parlons-image"
+                        src={logo} 
+                        alt={'parlons'} 
+        />
+      </div>
       <div className="loginSquare">
         <h1>Activate</h1>
         {errorMessage && <p className="errorText">{errorMessage}</p>}
