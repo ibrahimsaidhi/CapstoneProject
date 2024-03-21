@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import '../styles/Registration.css';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
+import logo from "../images/parlons_logo.png";
 
 /**
  *  Potential TODO add field to re-enter password, and maybe add an icon to right side of password field to show passowrd 
@@ -64,6 +65,12 @@ const Registration = () => {
   };
 
   return <div className="background">
+            <div className="logo">
+              <img className="parlons-image"
+                              src={logo} 
+                              alt={'parlons'} 
+              />
+            </div>
             <div className="registrationSquare"> 
               <h1> Sign Up</h1> 
               <form className="registrationForm" onSubmit={handleSubmit}>

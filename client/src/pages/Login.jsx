@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import '../styles/login.css';
+import logo from "../images/parlons_logo.png";
+
 
 function Login() {
   const [username, setUsername] = useState('');
@@ -44,7 +46,14 @@ function Login() {
   };
 
   return (
+    
     <div className="background">
+      <div className="logo">
+        <img className="parlons-image"
+                        src={logo} 
+                        alt={'parlons'} 
+        />
+      </div>
       <div className="loginSquare">
         <h1>Login</h1>
         <form className="loginForm" onSubmit={handleSubmit}>
