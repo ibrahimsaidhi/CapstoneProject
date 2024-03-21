@@ -4,8 +4,8 @@ const db_con = require("../connections");
 const findChatSessionQuery = `
 SELECT c.chat_id
 FROM chat c
-JOIN message m ON c.message_id = m.message_id
-WHERE (m.sender_id = ? AND m.recipient_id = ?) OR (m.sender_id = ? AND m.recipient_id = ?)
+JOIN message m ON c.chat_id = m.chat_id
+WHERE ((m.sender_id = ? AND m.recipient_id = ?) OR (m.sender_id = ? AND m.recipient_id = ?)) AND c.chat_type="one-on-one"
 LIMIT 1`;
 
 /**
