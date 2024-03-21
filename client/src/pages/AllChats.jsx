@@ -31,7 +31,7 @@ const AllChats = () => {
    */
   const fetchUserDetails = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/user/details', { withCredentials: true });
+      const response = await axios.get(`${process.env.REACT_APP_PARLONS_URL}/user/details`, { withCredentials: true });
       console.log("User response: " + JSON.stringify(response, null, 2));
       setUserId(response.data.userId);
       fetchData(response.data.userId);
@@ -48,9 +48,9 @@ const AllChats = () => {
    */
   const fetchData = async (userId) => {
     try {
-      const contactsResponse = await axios.get('http://localhost:5000/api/contacts/all?type=friends', { withCredentials: true });
-      const nonContactsResponse = await axios.get('http://localhost:5000/api/contacts/all?type=non-friends', { withCredentials: true });
-      const chatsResponse = await axios.get(`http://localhost:5000/api/chats/${userId}`, { withCredentials: true });
+      const contactsResponse = await axios.get(`${process.env.REACT_APP_PARLONS_URL}/contacts/all?type=friends`, { withCredentials: true });
+      const nonContactsResponse = await axios.get(`${process.env.REACT_APP_PARLONS_URL}/contacts/all?type=non-friends`, { withCredentials: true });
+      const chatsResponse = await axios.get(`${process.env.REACT_APP_PARLONS_URL}/chats/${userId}`, { withCredentials: true });
       console.log("Contacts Response: ", JSON.stringify(contactsResponse, null, 2));
       console.log("Non-contacts Response: ", JSON.stringify(nonContactsResponse, null, 2));
       console.log("Chats Response: ", JSON.stringify(chatsResponse, null, 2));
@@ -101,7 +101,7 @@ const AllChats = () => {
       userIds
     };
   
-    return axios.post('http://localhost:5000/api/oneOnOneChat/createOneOnOneChat', requestBody, { withCredentials: true })
+    return axios.post(`${process.env.REACT_APP_PARLONS_URL}/oneOnOneChat/createOneOnOneChat`, requestBody, { withCredentials: true })
       .then(response => {
         return response.data;
       })
@@ -122,7 +122,7 @@ const AllChats = () => {
       userIds
     };
   
-    return axios.post('http://localhost:5000/api/groupChats/createGroupChat', requestBody, { withCredentials: true })
+    return axios.post(`${process.env.REACT_APP_PARLONS_URL}/groupChats/createGroupChat`, requestBody, { withCredentials: true })
       .then(response => {
         return response.data;
       })
@@ -257,10 +257,10 @@ const AllChats = () => {
           const userContact = contacts.find(contact => contact.user_id === (chat.sender_id === userId ? chat.recipient_id : chat.sender_id));
   
           const profilePictureURL = userContact?.picture && userContact.picture !== "/path/pic1" 
-          ? `http://localhost:5000/profileUploads/${userContact.picture}` 
+          ? `${process.env.REACT_APP_PARLONS_PROFILE_URL}/profileUploads/${userContact.picture}` 
           : defaultAvatar;
 
-  
+
           return (
             <li key={chat.chat_id} className="chat-item">
               <img 

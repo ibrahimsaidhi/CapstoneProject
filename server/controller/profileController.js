@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs').promises;
-const query =  `SELECT username, picture, password FROM webapp.users WHERE user_id = ?`;
+const query =  `SELECT username, picture, password FROM users WHERE user_id = ?`;
 
 /**
  * Storage variable config for multer

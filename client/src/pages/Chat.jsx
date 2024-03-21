@@ -145,7 +145,7 @@ const Chat = ({socket}) => {
      */
     const fetchScheduledMessages = async () => {
         try {
-            const response = await axios.get(`http://localhost:5000/api/schedule/${chatId}`, { withCredentials: true });
+            const response = await axios.get(`${process.env.REACT_APP_PARLONS_URL}/schedule/${chatId}`, { withCredentials: true });
             if (response.status === 200 && response.data.messages) {
                 const userScheduledMessages = response.data.messages.filter(message => message.sender_id === userId);
                 setScheduledMessages(userScheduledMessages);
@@ -162,7 +162,7 @@ const Chat = ({socket}) => {
      */
     const fetchChatParticipants = async (chatId) => {
         try {
-            const response = await axios.get(`http://localhost:5000/api/messages/getParticipants/${chatId}`, { withCredentials: true });
+            const response = await axios.get(`${process.env.REACT_APP_PARLONS_URL}/messages/getParticipants/${chatId}`, { withCredentials: true });
             console.log("Fetch Chat Participants Response: " + JSON.stringify(response.data, null, 2));
             setChatParticipants(response.data.participants);
         } catch (error) {
@@ -194,7 +194,7 @@ const Chat = ({socket}) => {
     */
     const fetchUserDetails = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/api/user/details', { withCredentials: true });
+            const response = await axios.get(`${process.env.REACT_APP_PARLONS_URL}/user/details`, { withCredentials: true });
             console.log("User response: " + JSON.stringify(response, null, 2));
             setUserId(response.data.userId);
             setUsername(response.data.username);
@@ -243,7 +243,7 @@ const Chat = ({socket}) => {
      */
     const fetchMessages = async () => {
         try {
-            const response = await axios.get(`http://localhost:5000/api/messages/${chatId}`, { withCredentials: true });
+            const response = await axios.get(`${process.env.REACT_APP_PARLONS_URL}/messages/${chatId}`, { withCredentials: true });
             console.log("Messages fetched from the database: " + JSON.stringify(response, null, 2));
             const fetchedMessages = response.data;
             const updatedMessages = fetchedMessages.map(message => {
@@ -268,7 +268,7 @@ const Chat = ({socket}) => {
      */
     const fetchChatStatus = async () => {
         try {
-            const response = await axios.get(`http://localhost:5000/api/chats/${chatId}/status`, { withCredentials: true });
+            const response = await axios.get(`${process.env.REACT_APP_PARLONS_URL}/chats/${chatId}/status`, { withCredentials: true });
             return response.data.chatStatus;
     
         } catch (error) {
@@ -332,7 +332,7 @@ const Chat = ({socket}) => {
         formData.append('type', type);
     
         try {
-            const response = await axios.post('http://localhost:5000/api/upload/uploadFiles', formData, {
+            const response = await axios.post(`${process.env.REACT_APP_PARLONS_URL}/upload/uploadFiles`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
@@ -374,7 +374,7 @@ const Chat = ({socket}) => {
         };
     
         try {
-            const response = await axios.post('http://localhost:5000/api/schedule/insertScheduledMessages', postData, { withCredentials: true });
+            const response = await axios.post(`${process.env.REACT_APP_PARLONS_URL}/schedule/insertScheduledMessages`, postData, { withCredentials: true });
     
             if (response.status === 200) {
                 console.log("Message scheduled: ", JSON.stringify(response.data));
@@ -504,7 +504,7 @@ const Chat = ({socket}) => {
      */
     const cancelScheduledMessage = async (messageId) => {
         try {
-            const response = await axios.delete(`http://localhost:5000/api/schedule/${messageId}`, { withCredentials: true });
+            const response = await axios.delete(`${process.env.REACT_APP_PARLONS_URL}/schedule/${messageId}`, { withCredentials: true });
             if (response.status === 200) {
                 // Removing the message from the scheduled messages state
                 setScheduledMessages(scheduledMessages.filter(message => message.message_id !== messageId));
@@ -606,7 +606,7 @@ const Chat = ({socket}) => {
                         const isVideoMessage = messageData.message_type === 'video';
                         const isFileMessage = messageData.message_type === 'application';
 
-                        const fileSrc = `http://localhost:5000${messageData.file_path}`;
+                        const fileSrc = `${process.env.REACT_APP_PARLONS_PROFILE_URL}${messageData.file_path}`;
 
                         return (
                             <div key={index} className={isCurrentUser ? "message user-message" : "message opponent-message"}>

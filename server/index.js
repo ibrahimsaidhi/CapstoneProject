@@ -20,7 +20,7 @@ require("dotenv").config();
 
 // Enable CORS to accept the jwt cookie for api calls
 const corsOptions = {
-    origin: "http://localhost:3000",
+    origin: [process.env.CLIENT_URL],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     allowedHeaders: [

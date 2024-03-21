@@ -15,7 +15,7 @@ function Contacts() {
 
 
     const api = axios.create({
-      baseURL: "http://localhost:5000/api",
+      baseURL: process.env.REACT_APP_PARLONS_URL,
       withCredentials: true,
     });
 
@@ -200,8 +200,9 @@ function Contacts() {
           ) : (
             <ul>
               {data.map((user) => {
+
                 const profilePictureURL = user?.picture && user.picture !== "/path/pic1" 
-                ? `http://localhost:5000/profileUploads/${user.picture}` 
+                ? `${process.env.REACT_APP_PARLONS_PROFILE_URL}/profileUploads/${user.picture}` 
                 : defaultAvatar;
                 return (
                   <li key={user.id}>
