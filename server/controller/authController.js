@@ -41,9 +41,9 @@ const login = (req, res) => {
   
       // Set the JWT as an HTTP-only cookie for added security
       res.cookie("accessToken", token, {
-        httpOnly: true,
+        sameSite: 'none',
         secure: true,
-        SameSite: 'None',
+        httpOnly: true,
         maxAge: cookieExp * 1000,
       });
   
