@@ -2,10 +2,10 @@ const mysql = require("mysql2");
 require("dotenv").config();
   
 let db_con = mysql.createConnection({
-    host: "us-cluster-east-01.k8s.cleardb.net",
-    user: "bf05f17df90a01",
-    password: "2899c9c4",
-    database: "heroku_9bb8ea8d71b0c85"
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME
   });
   
   db_con.connect((err) => {
