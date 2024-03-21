@@ -2,6 +2,9 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const db_con = require("../connections");
 const transporter = require("../mailTransporter.js");
+const fs = require('fs');
+const { promisify } = require('util');
+const readFileAsync = promisify(fs.readFile);
 
 //Todo Need to be refactored into env file, with a proper hexadecimal key
 const SECRET_KEY_AUTHENTICATION = "secretkey";
@@ -125,6 +128,8 @@ const registration = async (req, res)  =>
                   // Generate a JSON Web Token (JWT) with the user's ID
                   const token = jwt.sign({ id: dataFromInsertingNewUser[0].insertId}, SECRET_KEY_ACTIVATION, {expiresIn: activationExp});
 
+                  const imageAttachment = await readFileAsync('email_templates/images/v3_blue-removebg-preview.png');
+
                   const mailOptions = {
                     from: "Parlons <"+process.env.MAIL_ADDRESS+">", // sender address
                     template: "activation", // the name of the template file, i.e., email.handlebars
@@ -132,8 +137,14 @@ const registration = async (req, res)  =>
                     subject: `Welcome to Parlons`,
                     context: {
                       name: name,
-                      link: 'http://localhost:3000/activate?code='+token
+                      link: 'https://parlons-capstone.netlify.app/activate?code='+token
                     },
+                    attachments: [{
+                      filename: 'image.png',
+                      content: imageAttachment,
+                      encoding: 'base64',
+                      cid: 'uniqueImageCID', // Referenced in the HTML template
+                  }],
                   };
 
                   await transporter.sendMail(mailOptions);
@@ -311,6 +322,8 @@ const resendActivation = (req, res) => {
     // Generate a JSON Web Token (JWT) with the user's ID
     const token = jwt.sign({ id: data[0].user_id}, SECRET_KEY_ACTIVATION, {expiresIn: activationExp});
 
+    const imageAttachment = await readFileAsync('email_templates/images/v3_blue-removebg-preview.png');
+
     const mailOptions = {
       from: "Parlons <"+process.env.MAIL_ADDRESS+">", // sender address
       template: "activation", // the name of the template file, i.e., email.handlebars
@@ -318,8 +331,14 @@ const resendActivation = (req, res) => {
       subject: `Welcome to Parlons`,
       context: {
         name: data[0].name,
-        link: 'http://localhost:3000/activate?code='+token
+        link: 'https://parlons-capstone.netlify.app/activate?code='+token
       },
+      attachments: [{
+        filename: 'image.png',
+        content: imageAttachment,
+        encoding: 'base64',
+        cid: 'uniqueImageCID', // Referenced in the HTML template
+     }],
     };
 
     await transporter.sendMail(mailOptions);
@@ -352,6 +371,8 @@ const forgotPassword = (req, res) => {
     // Generate a JSON Web Token (JWT) with the user's ID
     const token = jwt.sign({ id: data[0].user_id}, SECRET_KEY_FORGET_PASSWORD, {expiresIn: forgetPasswordExp});
 
+    const imageAttachment = await readFileAsync('email_templates/images/v3_blue-removebg-preview.png');
+
     const mailOptions = {
       from: "Parlons <"+process.env.MAIL_ADDRESS+">", // sender address
       template: "forgetPassword", // the name of the template file, i.e., email.handlebars
@@ -359,8 +380,14 @@ const forgotPassword = (req, res) => {
       subject: `Reset Password`,
       context: {
         name: data[0].name,
-        link: 'http://localhost:3000/forgot-password?code='+token
+        link: 'https://parlons-capstone.netlify.app/forgot-password?code='+token
       },
+      attachments: [{
+        filename: 'image.png',
+        content: imageAttachment,
+        encoding: 'base64',
+        cid: 'uniqueImageCID', // Referenced in the HTML template
+      }],
     };
 
     await transporter.sendMail(mailOptions);
@@ -432,6 +459,8 @@ const changeForgottenPassword = (req, res) =>
               dataFromUpdatingPassword = await db_con.promise().query(
                 `UPDATE webapp.users SET password = ? where user_id = ?`,[hash, userId]);
 
+                const imageAttachment = await readFileAsync('email_templates/images/v3_blue-removebg-preview.png');
+
               const mailOptions = {
                 from: "Parlons <"+process.env.MAIL_ADDRESS+">", // sender address
                 template: "passwordChanged", // the name of the template file, i.e., email.handlebars
@@ -440,6 +469,12 @@ const changeForgottenPassword = (req, res) =>
                 context: {
                   name: userData[0][0].name
                 },
+                attachments: [{
+                  filename: 'image.png',
+                  content: imageAttachment,
+                  encoding: 'base64',
+                  cid: 'uniqueImageCID', // Referenced in the HTML template
+               }],
               };
 
               await transporter.sendMail(mailOptions);
