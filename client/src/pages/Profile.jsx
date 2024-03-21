@@ -19,7 +19,7 @@ function Profile() {
     const [imageOpen, setImageOpen] = useState(false);
 
     const api = axios.create({
-        baseURL: "https://parlons-2977b2cfefba.herokuapp.com/api",
+        baseURL: process.env.REACT_APP_PARLONS_URL,
         withCredentials: true,  
     });
       
@@ -29,12 +29,12 @@ function Profile() {
 
     const getUser = async () => {
         try {
-            const api = await axios.get("https://parlons-2977b2cfefba.herokuapp.com/api/profile/details", {withCredentials: true}  );
+            const api = await axios.get(`${process.env.REACT_APP_PARLONS_URL}/profile/details`, {withCredentials: true}  );
             setUserId(api.data.userId);
             setUsername(api.data.username);
             setPassword(api.data.password);
             if (api?.data?.picture !== "/path/pic1") {
-                setProfileImage(`https://parlons-2977b2cfefba.herokuapp.com/profileUploads/${api.data.picture}`);
+                setProfileImage(`${process.env.REACT_APP_PARLONS_PROFILE_URL}/profileUploads/${api.data.picture}`);
             } else {
                 setProfileImage(defaultAvatar);
             }

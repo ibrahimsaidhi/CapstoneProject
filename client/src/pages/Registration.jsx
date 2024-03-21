@@ -15,7 +15,7 @@ const Registration = () => {
   
   //allows cookies to be saved to browser and sent in future request
   const api = axios.create({
-    baseURL: "https://parlons-2977b2cfefba.herokuapp.com/api",
+    baseURL: process.env.REACT_APP_PARLONS_URL,
     withCredentials: true,  
   });
   
