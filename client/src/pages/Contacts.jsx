@@ -199,17 +199,22 @@ function Contacts() {
             <p>No contacts</p>
           ) : (
             <ul>
-              {data.map((user) => (
-                <li key={user.id}>
-                    <img className="profile-image"
-                      src={defaultAvatar} 
-                      alt={`${user.username}'s profile`} 
-                    />
-                    {user.username} &nbsp;
-                    <button onClick={() => removeFromContacts(user.username)}>Remove Friend</button>
-                    <button onClick={() => block(user.username)}>Block</button>
-                </li>
-              ))}
+              {data.map((user) => {
+                const profilePictureURL = user?.picture && user.picture !== "/path/pic1" 
+                ? `http://localhost:5000/profileUploads/${user.picture}` 
+                : defaultAvatar;
+                return (
+                  <li key={user.id}>
+                      <img className="profile-image"
+                        src={profilePictureURL}
+                        alt={`${user.name}'s profile`} 
+                      /> &nbsp;&nbsp;
+                      {user.name} &nbsp;
+                      <button onClick={() => removeFromContacts(user.username)}>Remove Friend</button>
+                      <button onClick={() => block(user.username)}>Block</button>
+                  </li>
+                )
+              })}
             </ul>
           )}
         </div>
