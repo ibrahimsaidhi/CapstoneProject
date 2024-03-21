@@ -5,8 +5,8 @@ const db_con = require("../connections");
 //Todo Need to be refactored into env file, with a proper hexadecimal key
 const SECRET_KEY = "secretkey";
 
-//Expiration time of the cookie which is 10 minutes in seconds
-const cookieExp = 60 * 10;
+//Expiration time of the cookie which is 60 minutes in seconds
+const cookieExp = 60 * 60;
 
 
 const login = (req, res) => {
