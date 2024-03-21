@@ -20,7 +20,7 @@ require("dotenv").config();
 
 // Enable CORS to accept the jwt cookie for api calls
 const corsOptions = {
-    origin: ["https://parlons-capstone.netlify.app"],
+    origin: [process.env.CLIENT_URL],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     allowedHeaders: [
