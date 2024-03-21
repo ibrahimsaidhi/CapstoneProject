@@ -11,7 +11,7 @@ function Login() {
   const [successMessage, setSuccessMessage] = useState('');
   
   const api = axios.create({
-    baseURL: process.env.PARLONS_URL,
+    baseURL: process.env.REACT_APP_PARLONS_URL,
     withCredentials: true,  
   });
 
