@@ -184,9 +184,9 @@ function Contacts() {
                 <li key={user.id}>
                   <img className="profile-image"
                     src={defaultAvatar} 
-                    alt={`${user.name}'s profile`} 
+                    alt={`${user.username}'s profile`} 
                   />
-                  {user.name} &nbsp;
+                  {user.username} &nbsp;
                   <button onClick={() => sendRequest(user.username)}>Add Friend</button>
                 </li>
               ))}
@@ -203,9 +203,9 @@ function Contacts() {
                 <li key={user.id}>
                     <img className="profile-image"
                       src={defaultAvatar} 
-                      alt={`${user.name}'s profile`} 
+                      alt={`${user.username}'s profile`} 
                     />
-                    {user.name} &nbsp;
+                    {user.username} &nbsp;
                     <button onClick={() => removeFromContacts(user.username)}>Remove Friend</button>
                     <button onClick={() => block(user.username)}>Block</button>
                 </li>
@@ -223,9 +223,9 @@ function Contacts() {
                 <li key={user.id}>
                   <img className="profile-image"
                     src={defaultAvatar} 
-                    alt={`${user.name}'s profile`} 
+                    alt={`${user.username}'s profile`} 
                   />
-                  {user.name} &nbsp;
+                  {user.username} &nbsp;
                   <button onClick={() => acceptRequest(user.username)}>Accept</button>
                   <button onClick={() => declineRequest(user.username)}>Decline</button>
                 </li>
@@ -243,9 +243,9 @@ function Contacts() {
                 <li key={user.id}>
                   <img className="profile-image"
                     src={defaultAvatar} 
-                    alt={`${user.name}'s profile`} 
+                    alt={`${user.username}'s profile`} 
                   />
-                  {user.name} &nbsp;
+                  {user.username} &nbsp;
                   <button onClick={() => rescindRequest(user.username)}>Cancel</button>
                 </li>
               ))}
@@ -262,9 +262,9 @@ function Contacts() {
                 <li key={user.id}>
                   <img className="profile-image"
                     src={defaultAvatar} 
-                    alt={`${user.name}'s profile`} 
+                    alt={`${user.username}'s profile`} 
                   />
-                  {user.name} &nbsp;
+                  {user.username} &nbsp;
                   <button onClick={() => unblock(user.username)}>Unblock</button>
                 </li>
               ))}
