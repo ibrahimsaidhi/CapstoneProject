@@ -17,7 +17,7 @@ import { BsEmojiSmile } from "react-icons/bs";
  * @param {Object} props.socket - Socket connection that is needed for real-time communication 
  * @returns {JSX.Element} A rendered chat component
  */
-const Chat = ({socket}) => {
+const Chat = ({socket, listUpdateFunc}) => {
     /**
      * This is only for testing purposes.
      * It generates a userId to differentiate between the sender and receiver.
@@ -49,6 +49,7 @@ const Chat = ({socket}) => {
     const recipientId = location.state?.contactId;
     const chatType = location.state?.chatType;    
     const chatName = location.state?.chatName;
+    var isNewChat = location.state?.isNewChat;
 
     /**
      * Scrolls automatically to the bottom of the top every time a message is sent
@@ -183,7 +184,7 @@ const Chat = ({socket}) => {
             participant.username === username ? `${participant.username} (Me)` : participant.username
         );
                 
-        return participantsWithTitle.length > 1 ? participantsWithTitle.join(', ') : participantsWithTitle[0] || 'Messaging Chatroom';
+        return participantsWithTitle.length > 1 ? participantsWithTitle.join(', ') : participantsWithTitle[0] || 'None';
     };
     
     
@@ -391,42 +392,53 @@ const Chat = ({socket}) => {
      * Delivers the message over the socket to other users
      */
     const deliverMessage = async () => {
-        // Fetch the current status of the chat
-        const chatStatus = await fetchChatStatus();
 
-        // Check before delivering message that if chat is currently inactive, no message is sent
-        if (chatStatus === "inactive")
+        //Checks if there are participants in chat, so the inital none chat doesnt work
+        if (chatParticipants.length)
         {
-            return alert("Unable to send message to someone not in your contacts list");
+            // Fetch the current status of the chat
+            const chatStatus = await fetchChatStatus();
+
+            // Check before delivering message that if chat is currently inactive, no message is sent
+            if (chatStatus === "inactive")
+            {
+                return alert("Unable to send message to someone not in your contacts list");
+            }
+            
+            if (!messageSent.trim() && !uploadedFilePath) return;
+
+            // formatting the timestamp
+            const formattedTimestamp = formatTimestamp();
+
+            const messageData = {
+                message_type: uploadedFilePath ? fileType : 'text',
+                message: messageSent,
+                file_path: uploadedFilePath,
+                file_name: fileName,
+                sender_username: username,
+                senderId: userId,
+                recipientId, 
+                timestamp: formattedTimestamp,
+                chatId,
+                chatType,
+                chatName
+            }
+
+            if (sendDelay === "Now") {
+                // user wants to send the message now
+                await socket.emit("deliver_message", messageData);
+                fetchScheduledMessages();
+            } else {
+                // user scheduled the message for a particular time in the future
+                await insertScheduledMessage(messageData, sendDelay);
+            }  
+
+            if (isNewChat)
+            {
+                isNewChat = false;
+                listUpdateFunc();
+            }
         }
-        
-        if (!messageSent.trim() && !uploadedFilePath) return;
-
-        // formatting the timestamp
-        const formattedTimestamp = formatTimestamp();
-
-        const messageData = {
-            message_type: uploadedFilePath ? fileType : 'text',
-            message: messageSent,
-            file_path: uploadedFilePath,
-            file_name: fileName,
-            sender_username: username,
-            senderId: userId,
-            recipientId, 
-            timestamp: formattedTimestamp,
-            chatId,
-            chatType,
-            chatName
-        }
-
-        if (sendDelay === "Now") {
-            // user wants to send the message now
-            await socket.emit("deliver_message", messageData);
-            fetchScheduledMessages();
-        } else {
-            // user scheduled the message for a particular time in the future
-            await insertScheduledMessage(messageData, sendDelay);
-        }  
         setMessageSent("");
         setUploadedFilePath(null);
         setFileType(null);
@@ -439,6 +451,7 @@ const Chat = ({socket}) => {
     const handleKeyDown = (event) => {
         if (event.key === "Enter") {
             // preventing page reload
+            console.log("THIS IS CURRENT CHAT PARTI 2:"+chatParticipants);
             event.preventDefault();
             deliverMessage();
             handleFileDeselect(); 
