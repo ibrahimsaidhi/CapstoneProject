@@ -183,7 +183,7 @@ const Chat = ({socket}) => {
             participant.username === username ? `${participant.username} (Me)` : participant.username
         );
                 
-        return participantsWithTitle.length > 1 ? participantsWithTitle.join(', ') : participantsWithTitle[0] || 'Messaging Chatroom';
+        return participantsWithTitle.length > 1 ? participantsWithTitle.join(', ') : participantsWithTitle[0] || 'None';
     };
     
     
