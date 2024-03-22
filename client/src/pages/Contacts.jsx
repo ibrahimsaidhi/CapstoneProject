@@ -169,7 +169,7 @@ function Contacts() {
 
     return (
       <div className="App">
-        <h1>Contacts Page</h1>
+        <h1>Your Contacts</h1>
         <div className="section">
           <input type="search" placeholder="search for user" onChange={handleChangeSearch} value={searchInput} />
           <button className="searchButton" type="button" onClick={searchForUsers}>Search</button>
