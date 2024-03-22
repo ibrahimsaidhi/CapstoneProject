@@ -4,11 +4,14 @@ import { Navbar, NavbarBrand, NavbarItem } from '@nextui-org/react';
 import axios from 'axios';
 import '../styles/home.css';
 import logo from "../images/parlons_logo.png";
+import defaultAvatar from '../images/default_avatar.png';
 
 function Home() {
 
   const navigate = useNavigate();
   const [fullName, setFullName] = useState('');
+  const [profilePic, setProfilePic] = useState('');
+  const [isChildRouteActive, setIsChildRouteActive] = useState(false);
 
 
   const api = axios.create({
@@ -28,7 +31,14 @@ function Home() {
       api.post('/auth/refreshAccessToken')
         .then(response => {
           setFullName(sessionStorage.getItem("name"));
-        })
+          const savedProfilePic = sessionStorage.getItem('profilePic');
+          if (savedProfilePic) {
+            setProfilePic(`${process.env.REACT_APP_PARLONS_PROFILE_URL}/profileUploads/${savedProfilePic}`);
+          } else {
+            // If there is no profile picture URL in session storage, use a default avatar
+            setProfilePic(defaultAvatar);
+          }
+              })
         .catch(error => {
           // If token verification fails, remove token and redirect to login page
           console.error('Token verification failed:', error);
@@ -55,6 +65,11 @@ function Home() {
       });
   };
 
+  // Function to update state when a child route is clicked
+  const handleNavLinkClick = () => {
+    setIsChildRouteActive(true);
+  };
+
 
   return (
     <>
@@ -68,27 +83,24 @@ function Home() {
           <h3 className="name">Hello, {fullName}!</h3>
           <br/>
           <div className="right-bar">
-            <NavLink className="chats" to="/allchats" activeClassName="active">
+            <NavLink className="chats" to="/allchats" activeClassName="active" onClick={handleNavLinkClick}>
             <svg  xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="chats-icon" viewBox="0 0 16 16">
                                 <path d="M14 1a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H4.414A2 2 0 0 0 3 11.586l-2 2V2a1 1 0 0 1 1-1zM2 0a2 2 0 0 0-2 2v12.793a.5.5 0 0 0 .854.353l2.853-2.853A1 1 0 0 1 4.414 12H14a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z"/>
             </svg>
             </NavLink>
             &nbsp; &nbsp;
-            <NavLink className="contacts" to="/contacts" activeClassName="active">
+            <NavLink className="contacts" to="/contacts" activeClassName="active" onClick={handleNavLinkClick}>
             <svg  xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="contacts-icon" viewBox="0 0 16 16">
               <path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6m-5.784 6A2.24 2.24 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.3 6.3 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1zM4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5"/>
             </svg>
             </NavLink>
             &nbsp; &nbsp;
-            <NavLink className="profile" to="/profile" activeClassName="active">
-              {/* <img className="parlons-image"
-                        src={} 
-                        alt={'parlons'} 
-                      /> */}
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="profile-icon" viewBox="0 0 16 16">
-                <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
-                <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm12 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1v-1c0-1-1-4-6-4s-6 3-6 4v1a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z"/>
-              </svg>
+            <NavLink className="profile" to="/profile" activeClassName="active" onClick={handleNavLinkClick}>
+              <img
+                className="profile-image"
+                src={profilePic}
+                alt="Profile"
+              />
             </NavLink>
             &nbsp; &nbsp;
             <button onClick={handleLogout}>Logout</button>
@@ -97,7 +109,16 @@ function Home() {
       </Navbar>
       <br/>
       <div className="content">
-        <Outlet />
+        {/* Render welcome message if no child route is active */}
+        {!isChildRouteActive && (
+          <div className="welcome-message">
+            <h2>Welcome to Parlons!</h2>
+            <p>Select the chat or contact icon to get started.</p>
+          </div>
+        )}
+
+        {/* Outlet for rendering child routes */}
+        <Outlet context={[setIsChildRouteActive]} />
       </div>
     </>
   );
