@@ -28,7 +28,7 @@ function Login() {
 
     api.post('/auth/login', userData)
       .then((response) => {
-        sessionStorage.setItem("name", response.data.userInfo.name);
+        sessionStorage.setItem("name", response.data.userInfo.username);
         sessionStorage.setItem("profilePic", response.data.userInfo.picture);
         sessionStorage.setItem("token", response.data.token);
         setErrorMessage('');

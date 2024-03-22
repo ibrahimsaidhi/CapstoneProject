@@ -41,49 +41,20 @@
   color: white;
 }
 
+
 .navbar {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 20px;
+  border-radius: 2%;
   background-color: rgb(44, 147, 237);
-  color: white;
+  align-items: center; /* Align items vertically in the center */
+  justify-content: space-between; /* Space out the navbar items */
+  flex-wrap: nowrap; /* Prevent wrapping of items */
 }
 
-
-.navbar-item {
+.right-bar {
   display: flex;
   align-items: center;
-  position: relative; 
-}
-
-.navbar-item svg {
-  cursor: pointer;
-  transition: transform 0.2s ease-in-out;
-}
-
-.navbar-item:hover svg {
-  transform: scale(1.1); 
-}
-
-.tooltip {
-  display: none;
-  position: absolute;
-  bottom: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  margin-bottom: 5px;
-  padding: 5px 10px;
-  color: #fff;
-  background-color: #333;
-  border-radius: 5px;
-  font-size: 14px;
-  white-space: nowrap; /* Ensure the tooltip text does not wrap */
-}
-
-/* Show tooltip on hover */
-.navbar-item:hover .tooltip {
-  display: block;
+  flex-wrap: nowrap;
 }
 
 .welcome-message {
