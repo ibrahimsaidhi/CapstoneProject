@@ -10,7 +10,7 @@ import '../styles/AllChats.css';
  * Component that displays all the chats that the
  * user has after they log in with their credentials.
  */
-const AllChats = () => {
+const AllChats = ({listUpdate}) => {
   const [chats, setChats] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [contacts, setContacts] = useState([]);
@@ -21,8 +21,9 @@ const AllChats = () => {
 
   useEffect(() => {
     fetchUserDetails(); 
+    console.log("UPDATING LIST DUE TO LIST UPDATE");
       // eslint-disable-next-line
-  },[]);
+  },[listUpdate]);
   
 
   /**
@@ -153,7 +154,7 @@ const AllChats = () => {
         .then(result => {
           console.log("one-on-One chat created successfully with ID:", result.chatId);
           navigate(`/chatblock`, { state: { chatName: "one-on-one", chatId: result.chatId, 
-                              contactId: selectedContacts[0], chatType: 'one-on-one' }});
+                              contactId: selectedContacts[0], chatType: 'one-on-one', isNewChat: true }});
          })
         .catch(error => {
           console.error("Failed to create one-on-one chat:", error.response ? error.response.data.message : error.message);
@@ -176,7 +177,7 @@ const AllChats = () => {
       createGroupChat(chatName, selectedContacts)
       .then(data => {
         const { chatId } = data;
-        navigate(`/chatblock`, { state: { chatId, chatType: 'group', chatName }});
+        navigate(`/chatblock`, { state: { chatId, chatType: 'group', chatName, isNewChat: true }});
       })
       .catch(error => {
         alert("Failed to create group chat: " + error);
@@ -198,7 +199,7 @@ const AllChats = () => {
    */
   const continueChat = (chat) => {
     const contactId = chat.sender_id === userId ? chat.recipient_id : chat.sender_id;
-    navigate(`/chatblock`, { state: { chatName: chat.name, chatType: chat.chat_type, chatId: chat.chat_id, contactId: contactId } });
+    navigate(`/chatblock`, { state: { chatName: chat.name, chatType: chat.chat_type, chatId: chat.chat_id, contactId: contactId, isNewChat: true } });
   };
 
   /**
