@@ -249,7 +249,7 @@ const activation = async (req, res)  =>
 
             //SQL to get database data for that friendUsername
             const userData = await db_con.promise().query(
-              `SELECT * FROM webapp.users where user_id = ?`,[userId]
+              `SELECT * FROM users where user_id = ?`,[userId]
               );
 
             
@@ -272,7 +272,7 @@ const activation = async (req, res)  =>
             }
 
             const updateUserActivation = await db_con.promise().query(
-              `update webapp.users set status = "active" where user_id = ? `,[userId]
+              `update users set status = "active" where user_id = ? `,[userId]
             );
 
             return res.status(200).json({
@@ -433,7 +433,7 @@ const changeForgottenPassword = (req, res) =>
 
         //SQL to get database data for that friendUsername
         const userData = await db_con.promise().query(
-          `SELECT * FROM webapp.users where user_id = ?`,[userId]
+          `SELECT * FROM users where user_id = ?`,[userId]
           );
 
         
@@ -459,7 +459,7 @@ const changeForgottenPassword = (req, res) =>
           {
               //asyncly updates the password for the user in the database
               dataFromUpdatingPassword = await db_con.promise().query(
-                `UPDATE webapp.users SET password = ? where user_id = ?`,[hash, userId]);
+                `UPDATE users SET password = ? where user_id = ?`,[hash, userId]);
 
                 const imageAttachment = await readFileAsync('email_templates/images/v3_blue-removebg-preview.png');
 
