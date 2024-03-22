@@ -71,7 +71,7 @@ const getAll = async (req, res)  =>
               FROM contacts where user_id = ? and status = "friend"
               UNION 
               SELECT contacts.user_id
-              FROM contacts where friend_id = ? and status = "friend") t2  ON users.user_id = t2.friend_id where t2.friend_id is null and users.user_id  <> ?`,[id, id, id]
+              FROM contacts where friend_id = ? and status = "friend") t2  ON users.user_id = t2.friend_id where status = \"active\" and t2.friend_id is null and users.user_id  <> ?`,[id, id, id]
             );
             break;
           default:
@@ -124,7 +124,7 @@ const searchNewContact = async (req, res)  =>
           FROM contacts where user_id = ?
           UNION 
           SELECT contacts.user_id
-          FROM contacts where friend_id = ?) t2  ON users.user_id = t2.friend_id where t2.friend_id is null and users.user_id  <> ? and users.username LIKE ?`,[id, id, id, searchTerm]
+          FROM contacts where friend_id = ?) t2  ON users.user_id = t2.friend_id where status = \"active\" and t2.friend_id is null and users.user_id  <> ? and users.username LIKE ?`,[id, id, id, searchTerm]
         );
 
         //Return to client, the users that have the specified term in their username and not in contacts

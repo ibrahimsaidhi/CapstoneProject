@@ -7,6 +7,9 @@ import RegisterPage from './pages/Registration';
 import HomePage from './pages/Home'; 
 import Chat from './pages/Chat';
 import ContactsPage from './pages/Contacts';
+import ActivatePage from './pages/Activate';
+import ResendActivationPage from './pages/ResendActivation';
+import ForgotPassword from "./pages/ForgotPassword";
 import Profile from './pages/Profile';
 
 const socket = io(`${process.env.REACT_APP_PARLONS_PROFILE_URL}`);
@@ -15,6 +18,9 @@ function App() {
     return (
       <Router>
         <Routes>
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/activate" element={<ActivatePage />} />
+          <Route path="/resend-activation" element={<ResendActivationPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/registration" element={<RegisterPage />} />
           <Route path="/" element={<HomePage />}>
