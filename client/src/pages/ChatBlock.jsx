@@ -19,7 +19,6 @@ const ChatBlock = () =>{
     return (
         <div className='container'>
             <div className='chat-list'>
-            <p>{console.log(socket)}</p>
                 <AllChats/>
             </div>
             <div className='chat-box'>
