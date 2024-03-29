@@ -22,10 +22,11 @@ body {
   padding: 10px;
   background-color: rgb(44, 147, 237);
   color: white;
-  text-align: center;
   font-size: 18px;
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
+  display: flex;
+  justify-content: space-between;
 }
 
 .messages-area {
@@ -276,5 +277,22 @@ span {
 
 .toggle-panel-button:hover {
   background-color: #919193; 
+}
+
+.add-participants-button {
+  background-color: #FFA500; 
+  color: black;
+  padding: 10px 20px;
+  margin: 10px 0;
+  border: none;
+  border-radius: 5px;
+  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+  transition-duration: 0.4s;
+  cursor: pointer;
+}
+
+.add-participants-button:hover {
+  background-color: #E69500; 
+  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
 }
 

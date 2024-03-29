@@ -16,6 +16,7 @@ const AllChats = ({listUpdate}) => {
   const [contacts, setContacts] = useState([]);
   const [userId, setUserId] = useState(null);
   let [selectedContacts, setSelectedContacts] = useState([]);
+  const [selectedChatId, setSelectedChatId] = useState(null);
 
   const navigate = useNavigate();
 
@@ -24,6 +25,16 @@ const AllChats = ({listUpdate}) => {
     console.log("UPDATING LIST DUE TO LIST UPDATE");
       // eslint-disable-next-line
   },[listUpdate]);
+
+  // runs every time the component mounts (i.e., when the page refreshes)
+  useEffect(() => {
+    // ensures the chat is still selected after page refresh
+    const storedSelectedChatId = sessionStorage.getItem('selectedChatId');
+    if (storedSelectedChatId) {
+      setSelectedChatId(storedSelectedChatId);
+    }
+    // eslint-disable-next-line
+  }, [])
   
 
   /**
@@ -152,6 +163,7 @@ const AllChats = ({listUpdate}) => {
       // Handle one-on-one chat initiation
       createOneOnOneChat("one-on-one", selectedContacts)
         .then(result => {
+          setSelectedChatId(result.chatId);
           console.log("one-on-One chat created successfully with ID:", result.chatId);
           navigate(`/chatblock`, { state: { chatName: "one-on-one", chatId: result.chatId, 
                               contactId: selectedContacts[0], chatType: 'one-on-one', isNewChat: true }});
@@ -177,6 +189,7 @@ const AllChats = ({listUpdate}) => {
       createGroupChat(chatName, selectedContacts)
       .then(data => {
         const { chatId } = data;
+        setSelectedChatId(chatId);
         navigate(`/chatblock`, { state: { chatId, chatType: 'group', chatName, isNewChat: true }});
       })
       .catch(error => {
@@ -198,6 +211,8 @@ const AllChats = ({listUpdate}) => {
    * about a chat.
    */
   const continueChat = (chat) => {
+    sessionStorage.setItem('selectedChatId', chat.chat_id);
+    setSelectedChatId(chat.chat_id);
     const contactId = chat.sender_id === userId ? chat.recipient_id : chat.sender_id;
     navigate(`/chatblock`, { state: { chatName: chat.name, chatType: chat.chat_type, chatId: chat.chat_id, contactId: contactId, isNewChat: true } });
   };
@@ -263,9 +278,10 @@ const AllChats = ({listUpdate}) => {
           ? `${process.env.REACT_APP_PARLONS_PROFILE_URL}/profileUploads/${userContact.picture}` 
           : defaultAvatar;
 
-
+          const isSelected = Number(chat.chat_id) === Number(selectedChatId);
           return (
-            <li key={chat.chat_id} className="chat-item">
+            // Making a selected chat stand out by making the box of the chat gray
+            <li key={chat.chat_id} className={`chat-item ${isSelected ? 'selected-chat' : ''}`}>
               <img 
                 src={chat.chat_type === 'group' ? groupChatIcon : profilePictureURL}
                 alt="" 

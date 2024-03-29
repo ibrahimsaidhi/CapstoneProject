@@ -34,3 +34,7 @@
     color: white;
     cursor: pointer;
   }
+
+  .enlarged-image {
+    margin-top: 30px;
+  }

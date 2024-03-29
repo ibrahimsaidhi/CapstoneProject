@@ -54,4 +54,34 @@ async function createGroupChat(req, res) {
     }
 }
 
-module.exports = { createGroupChat };
+/**
+ * Adds participants to the group chat by inserting them into the chat_participants table.
+ * @param {Object} req - The request object received from the client
+ * @param {Object} res - The response object that sends back data to the client 
+ */
+async function addParticipantsToGroupChat(req, res) {
+    const { chatId, userIds } = req.body;
+    
+    try {
+        await db_con.promise().beginTransaction();
+
+        // Inserting new participants into the chat_participants table
+        for (const userId of userIds) {
+            await db_con.promise().query(
+                'INSERT INTO chat_participants (chat_id, user_id) VALUES (?, ?)',
+                [chatId, userId]
+            );
+        }
+
+        await db_con.promise().commit();
+
+        res.status(201).json({ message: 'Participants added successfully' });
+    } catch (error) {
+        // Rollback transaction in case of error
+        await db_con.promise().rollback();
+        res.status(500).json({ message: 'Failed to add participants to group chat', error: error.message });
+    }
+}
+
+
+module.exports = { createGroupChat, addParticipantsToGroupChat };

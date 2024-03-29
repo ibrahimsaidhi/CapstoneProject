@@ -9,6 +9,7 @@ import Picker from "@emoji-mart/react";
 import { useLocation } from 'react-router-dom';
 import "../styles/Chat.css";
 import '../styles/ImageModal.css';
+import '../styles/AddParticipantsModal.css'
 import axios from 'axios';
 import { BsEmojiSmile } from "react-icons/bs";
 
@@ -36,6 +37,9 @@ const Chat = ({socket, listUpdateFunc}) => {
     const [currentImageSrc, setCurrentImageSrc] = useState("");
     const [showEmoji, setShowEmoji] = useState(false);
     const [chatParticipants, setChatParticipants] = useState([]);
+    const [isAddParticipantsModalOpen, setIsAddParticipantsModalOpen] = useState(false);
+    const [selectedUsersToAdd, setSelectedUsersToAdd] = useState([]);
+    const [userContacts, setUserContacts] = useState([]);
 
     // timed messages delay
     const [sendDelay, setSendDelay] = useState("Now");
@@ -183,7 +187,7 @@ const Chat = ({socket, listUpdateFunc}) => {
         const participantsWithTitle = chatParticipants.map((participant) => 
             participant.username === username ? `${participant.username} (Me)` : participant.username
         );
-                
+
         return participantsWithTitle.length > 1 ? participantsWithTitle.join(', ') : participantsWithTitle[0] || 'None';
     };
     
@@ -276,6 +280,24 @@ const Chat = ({socket, listUpdateFunc}) => {
             console.error("Error fetching messages: ", error);
         }
     }
+
+    /**
+     * Fetches all contacts that are friends of the user
+     * @returns     the contacts or an empty array if no contacts exist.
+     */
+    const fetchUserContacts = async () => {
+        try {
+            const response = await axios.get(`${process.env.REACT_APP_PARLONS_URL}/contacts/all?type=friends`, { withCredentials: true });
+            console.log("Contacts response: " + JSON.stringify(response, null, 2));
+            if (response.status === 200) {
+                setUserContacts(response.data.users || []);
+                return response.data.users || [];
+            }
+        } catch (error) {
+            console.error("Error fetching user contacts: ", error);
+            return [];
+        }
+    };
 
     /**
      * Handles the change event on a file input element.
@@ -588,7 +610,7 @@ const Chat = ({socket, listUpdateFunc}) => {
         return (
             <div className="image-modal-backdrop" onClick={onClose}>
             <div className="image-modal-content" onClick={e => e.stopPropagation()}>
-                <img src={src} alt="Expanded view" style={{ maxWidth: '90%', maxHeight: '90%' }} />
+                <img className="enlarged-image" src={src} alt="Expanded view" style={{ maxWidth: '90%', maxHeight: '90%' }} />
                 <button onClick={onClose}>Close</button>
             </div>
             </div>
@@ -603,6 +625,49 @@ const Chat = ({socket, listUpdateFunc}) => {
         setIsPanelOpen(prevState => !prevState);
     }
 
+    /**
+     * Adds participants to the group chat.
+     * If no users are selected, it alerts the user to select at least one.
+     * 
+     * When users are added to the group chat, the modal closes and the
+     * list of chat participants refreshes.    
+     */
+    const addParticipants = async () => {
+        if (selectedUsersToAdd.length === 0) {
+            alert('Please select at least one user to add.');
+            return;
+        }
+    
+        try {
+            await axios.post(`${process.env.REACT_APP_PARLONS_URL}/groupChats/addParticipants`, { chatId, userIds: selectedUsersToAdd }, { withCredentials: true });
+
+            // Closing modal and refreshing chat participants list
+            setIsAddParticipantsModalOpen(false);
+            fetchChatParticipants(chatId); 
+            setSelectedUsersToAdd([]); 
+        } catch (error) {
+            console.error("Failed to add participants: ", error.response ? error.response.data.message : error.message);
+        }
+    };
+    
+    /**
+     * Fetches user contacts when the user clicks on the "Add Participants" button
+     * that is located in the chatbox header. 
+     * Then, it changes the state of the modal, so it can be open/closed by the user.
+     */
+    const toggleAddParticipantsModal = async () => {
+        if (!isAddParticipantsModalOpen) {
+            const contacts = await fetchUserContacts(); 
+            const availableContactsToAdd = contacts.filter(contact => !chatParticipants.some(participant => participant.user_id === contact.user_id));
+
+            if (availableContactsToAdd.length === 0) {
+                alert("You have no contacts to add.");
+            } else {
+                setIsAddParticipantsModalOpen(!isAddParticipantsModalOpen);
+            }
+        }
+    };
+    
     // rendering the chat interface
     return (
         <div className="chat-room">
@@ -611,7 +676,40 @@ const Chat = ({socket, listUpdateFunc}) => {
                 <div className="chat-box">
                     <div className="chat-header">
                         <p>{`Participants: ${getChatTitle()}`}</p>
+                        {
+                            chatParticipants.length > 2 && (
+                                <button onClick={toggleAddParticipantsModal} className="add-participants-button">
+                                    Add Participants
+                                </button>
+                            )
+                        }
                     </div>
+                    {isAddParticipantsModalOpen && (
+                        <div className="add-participant-modal-backdrop">
+                            <div className="add-participant-modal-content">
+                                <button className="close-button" onClick={() => setIsAddParticipantsModalOpen(false)}>Close</button>
+                                {userContacts.filter(contact => !chatParticipants.some(participant => participant.user_id === contact.user_id)).map((contact) => (
+                                    <div className="participant-names" key={contact.user_id}>
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedUsersToAdd.includes(contact.user_id)}
+                                            onChange={() => {
+                                                setSelectedUsersToAdd(prev => {
+                                                    if (prev.includes(contact.user_id)) {
+                                                        return prev.filter(id => id !== contact.user_id);
+                                                    } else {
+                                                        return [...prev, contact.user_id];
+                                                    }
+                                                });
+                                            }}
+                                        />
+                                        {contact.username}
+                                    </div>
+                                ))}
+                                <button className="confirm-add-button" onClick={addParticipants}>Add Participants</button>
+                            </div>
+                        </div>
+                    )}
                     <div className="messages-area">
                     {chatLog.map((messageData, index) => {
                         const isCurrentUser = messageData.sender_id === userId;
