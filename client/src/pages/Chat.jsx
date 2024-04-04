@@ -12,6 +12,9 @@ import '../styles/ImageModal.css';
 import '../styles/AddParticipantsModal.css'
 import axios from 'axios';
 import { BsEmojiSmile } from "react-icons/bs";
+import audioLogo from '../images/audio-logo.png';
+import fileLogo from '../images/file-logo.png';
+import videoLogo from '../images/video-logo.png';
 
 /**
  * Chat component that handles real-time messaging
@@ -35,6 +38,7 @@ const Chat = ({socket, listUpdateFunc}) => {
     const [fileName, setFileName] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [currentImageSrc, setCurrentImageSrc] = useState("");
+    const [filePreviewSrc, setFilePreviewSrc] = useState("");
     const [showEmoji, setShowEmoji] = useState(false);
     const [chatParticipants, setChatParticipants] = useState([]);
     const [isAddParticipantsModalOpen, setIsAddParticipantsModalOpen] = useState(false);
@@ -323,15 +327,18 @@ const Chat = ({socket, listUpdateFunc}) => {
                     case 'video':
                         // Handle video upload
                         uploadFile(file, 'video');
+                        setFilePreviewSrc(videoLogo);
                         break;
                     case 'audio':
                         // Handle audio upload
                         uploadFile(file, 'audio');
+                        setFilePreviewSrc(audioLogo);
                         break;
                     default:
                         // Handle other files (documents, compressed files)
                         // I rendered a "download file" link for these that the user can click on
                         uploadFile(file, 'other');
+                        setFilePreviewSrc(fileLogo);
                         break;
                 }
                 setFileName(fileName);
@@ -363,7 +370,12 @@ const Chat = ({socket, listUpdateFunc}) => {
             });
             console.log('File uploaded successfully:', response.data);
             setUploadedFilePath(response.data.filePath);
-            setFileType(file.type.split('/')[0]);        
+            setFileType(file.type.split('/')[0]);    
+           
+            if (type === 'image')
+            {
+                 setFilePreviewSrc(`${process.env.REACT_APP_PARLONS_PROFILE_URL}${response.data.filePath}`);
+            } 
         } catch (error) {
             console.error('Error uploading file:', error);
         }
@@ -492,6 +504,7 @@ const Chat = ({socket, listUpdateFunc}) => {
         setUploadedFilePath(null);
         setFileType(null);
         setFileName("");
+        setFilePreviewSrc("");
     };
 
     /**
@@ -767,8 +780,14 @@ const Chat = ({socket, listUpdateFunc}) => {
                             <button className="file-deselect-button" onClick={handleFileDeselect}>
                                 Remove File
                             </button>
-                            <br/>
-                            <br />
+                            {filePreviewSrc && <img id = "filePreview" src={filePreviewSrc}
+                                        alt="file" 
+                                        onClick={() => {
+                                            setCurrentImageSrc(filePreviewSrc);
+                                            setIsModalOpen(true);
+                                        }}
+                                    /> 
+                            }
                             <span className="file-upload-status">{fileLabel}</span>               
                         </div>
                         <div className="message-send-options">
