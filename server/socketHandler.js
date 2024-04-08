@@ -58,10 +58,19 @@ const socketHandler = (server, db_con) => {
           `, [resultMessageId]);
         }
     
+        const notification = {
+          message: fullMessage.message,
+          user: fullMessage.sender_username,
+          chatId: fullMessage.chatId,
+          chatType: fullMessage.chatType,
+          recipientId: fullMessage.recipientId
+        }
         if (messageData.chatType === "one-on-one") {
           io.to(messageData.chatId).emit("receive_message", fullMessage);
+          io.emit("notification", notification);
         } else if (messageData.chatType === "group") {
           emitMessageToGroup(fullMessage, io, db_con);
+          io.emit('notification', notification);
         }
       } catch (error) {
         console.error("Error handling message:", error);

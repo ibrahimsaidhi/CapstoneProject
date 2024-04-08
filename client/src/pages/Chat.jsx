@@ -112,6 +112,12 @@ const Chat = ({socket, listUpdateFunc}) => {
             setChatLog((log) => [...log, alignedMessage]);
         };
 
+        const receiveNotification = (notification) => {
+            if (userId === notification.recipientId){
+                alert("Notification from " + notification.user + ": " + notification.message);
+            } 
+        }
+
         /**
          * Ensures that the scheduled message gets removed from the side panel
          * after it gets sent.
@@ -128,11 +134,13 @@ const Chat = ({socket, listUpdateFunc}) => {
         scrollToBottom();
 
         socket.on("receive_message", receiveMessage);
+        socket.on("notification", receiveNotification);
         socket.on("message_sent", handleMessageSent);
     
         // Cleanup function to remove the event listener
         return () => {
             socket.off("receive_message", receiveMessage);
+            socket.off("notification", receiveNotification);
             socket.off("message_sent", handleMessageSent);
         };
     }, [socket, userId, chatLog]);
