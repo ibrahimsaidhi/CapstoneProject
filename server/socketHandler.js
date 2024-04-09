@@ -146,6 +146,7 @@ async function checkAndSendScheduledMessages(io, db_con) {
 
     // Emit the message to the chat room
     io.to(message.chat_id).emit('receive_message', messageToEmit);
+    
 
     // Update the message status to 'sent'
     await db_con.promise().query(`
@@ -153,8 +154,16 @@ async function checkAndSendScheduledMessages(io, db_con) {
       SET status = 'sent'
       WHERE message_id = ?
     `, [message.message_id]);
+
+    const notification = {
+      message: messageToEmit.message,
+      user: messageToEmit.sender_username,
+      chatId: message.chatId,
+      recipientId: messageToEmit.recipientId
+    }
     
     io.to(message.chat_id).emit("message_sent", message.message_id);
+    io.emit('notification', notification);
 
   });
 }

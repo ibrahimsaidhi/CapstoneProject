@@ -44,6 +44,8 @@ const Chat = ({socket, listUpdateFunc}) => {
     const [isAddParticipantsModalOpen, setIsAddParticipantsModalOpen] = useState(false);
     const [selectedUsersToAdd, setSelectedUsersToAdd] = useState([]);
     const [userContacts, setUserContacts] = useState([]);
+    const [alert, setAlert] = useState(false);
+    const [name, setName] = useState("");
 
     // timed messages delay
     const [sendDelay, setSendDelay] = useState("Now");
@@ -113,8 +115,13 @@ const Chat = ({socket, listUpdateFunc}) => {
         };
 
         const receiveNotification = (notification) => {
-            if (userId === notification.recipientId){
-                alert("Notification from " + notification.user + ": " + notification.message);
+
+            if (userId === notification.recipientId && notification.chatId !== chatId){
+                setName(notification.user);
+                setAlert(true);
+                setTimeout(() => {
+                    setAlert(false);
+                }, 10000);
             } 
         }
 
@@ -143,6 +150,7 @@ const Chat = ({socket, listUpdateFunc}) => {
             socket.off("notification", receiveNotification);
             socket.off("message_sent", handleMessageSent);
         };
+        // eslint-disable-next-line
     }, [socket, userId, chatLog]);
 
     /**
@@ -692,6 +700,9 @@ const Chat = ({socket, listUpdateFunc}) => {
     // rendering the chat interface
     return (
         <div className="chat-room">
+            {alert && <div className='popup'>
+                <p>New message from {name}</p>
+            </div>}
             <ImageModal isOpen={isModalOpen} src={currentImageSrc} onClose={() => setIsModalOpen(false)} />
             <div className="chat-container">
                 <div className="chat-box">
