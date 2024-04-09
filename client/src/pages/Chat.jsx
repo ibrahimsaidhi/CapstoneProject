@@ -115,7 +115,6 @@ const Chat = ({socket, listUpdateFunc}) => {
         };
 
         const receiveNotification = (notification) => {
-
             if (userId === notification.recipientId && notification.chatId !== chatId){
                 setName(notification.user);
                 setAlert(true);
@@ -123,6 +122,14 @@ const Chat = ({socket, listUpdateFunc}) => {
                     setAlert(false);
                 }, 10000);
             } 
+            else if (notification.chatParticipants.some(participant => participant.user_id === userId)
+                     && notification.chatId !== chatId){
+                setName(notification.chatName);
+                setAlert(true);
+                setTimeout(() => {
+                    setAlert(false);
+                }, 10000);
+            }
         }
 
         /**
@@ -420,6 +427,7 @@ const Chat = ({socket, listUpdateFunc}) => {
             file_name: messageData.file_name,
             chatName: messageData.chatName,
             chatType: messageData.chatType,
+            chatParticipants: chatParticipants,
             scheduledTime: scheduledTime, 
             status: 'pending'
         };
@@ -442,7 +450,6 @@ const Chat = ({socket, listUpdateFunc}) => {
      * Delivers the message over the socket to other users
      */
     const deliverMessage = async () => {
-
         //Checks if there are participants in chat, so the inital none chat doesnt work
         if (chatParticipants.length)
         {
@@ -471,7 +478,8 @@ const Chat = ({socket, listUpdateFunc}) => {
                 timestamp: formattedTimestamp,
                 chatId,
                 chatType,
-                chatName
+                chatName, 
+                chatParticipants
             }
 
             if (sendDelay === "Now") {
@@ -501,7 +509,6 @@ const Chat = ({socket, listUpdateFunc}) => {
     const handleKeyDown = (event) => {
         if (event.key === "Enter") {
             // preventing page reload
-            console.log("THIS IS CURRENT CHAT PARTI 2:"+chatParticipants);
             event.preventDefault();
             deliverMessage();
             handleFileDeselect(); 

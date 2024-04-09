@@ -43,6 +43,7 @@ const socketHandler = (server, db_con) => {
         file_path: messageData.file_path || null,
         file_name: messageData.file_name || null,
         scheduledTime: messageData.scheduledTime,
+        chatParticipants: messageData.chatParticipants,
         status: messageData.scheduledTime ? 'pending' : 'sent'
       };
 
@@ -57,13 +58,16 @@ const socketHandler = (server, db_con) => {
             WHERE message_id = ?
           `, [resultMessageId]);
         }
-    
+
         const notification = {
           message: fullMessage.message,
           user: fullMessage.sender_username,
           chatId: fullMessage.chatId,
+          senderId: fullMessage.senderId,
           chatType: fullMessage.chatType,
-          recipientId: fullMessage.recipientId
+          chatName: fullMessage.chatName,
+          recipientId: fullMessage.recipientId,
+          chatParticipants: fullMessage.chatParticipants
         }
         if (messageData.chatType === "one-on-one") {
           io.to(messageData.chatId).emit("receive_message", fullMessage);
@@ -129,17 +133,35 @@ async function checkAndSendScheduledMessages(io, db_con) {
       message.scheduled_time IS NOT NULL
   `, [formattedScheduledTime]);
 
+
   scheduledMessages.forEach(async (message) => {
+    const [listOfChats] = await db_con.promise().query(`
+    SELECT 
+      chat_participants.user_id AS user_id
+    FROM 
+      chat_participants
+    WHERE 
+      chat_participants.chat_id = ?
+    `, [message.chat_id]);
+    const [name] = await db_con.promise().query(`
+    SELECT 
+      chat.name AS name
+    FROM 
+      chat
+    WHERE 
+      chat_id = ?
+    `, [message.chat_id]);
     const messageToEmit = {
       message_type: message.message_type,
       message: message.message,
       senderId: message.sender_id,
       timestamp: message.timestamp,
       recipientId: message.recipient_id,
-      chatType: message.chatType, 
-      chatId: message.chatId,
-      chatName: message.chatName, 
+      chatType: message.chat_type, 
+      chatId: message.chat_id,
+      chatName: name[0].name, 
       sender_username: message.sender_username, 
+      chatParticipants: listOfChats,
       file_path: message.file_path,
       file_name: message.file_name
     };
@@ -158,7 +180,11 @@ async function checkAndSendScheduledMessages(io, db_con) {
     const notification = {
       message: messageToEmit.message,
       user: messageToEmit.sender_username,
-      chatId: message.chatId,
+      senderId: messageToEmit.senderId,
+      chatId: messageToEmit.chatId,
+      chatType: messageToEmit.chatType,
+      chatName: messageToEmit.chatName,
+      chatParticipants: messageToEmit.chatParticipants,
       recipientId: messageToEmit.recipientId
     }
     
