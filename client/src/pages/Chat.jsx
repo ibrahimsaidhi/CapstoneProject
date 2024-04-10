@@ -44,6 +44,8 @@ const Chat = ({socket, listUpdateFunc}) => {
     const [isAddParticipantsModalOpen, setIsAddParticipantsModalOpen] = useState(false);
     const [selectedUsersToAdd, setSelectedUsersToAdd] = useState([]);
     const [userContacts, setUserContacts] = useState([]);
+    const [alert, setAlert] = useState(false);
+    const [name, setName] = useState("");
 
     // timed messages delay
     const [sendDelay, setSendDelay] = useState("Now");
@@ -112,6 +114,24 @@ const Chat = ({socket, listUpdateFunc}) => {
             setChatLog((log) => [...log, alignedMessage]);
         };
 
+        const receiveNotification = (notification) => {
+            if (userId === notification.recipientId && notification.chatId !== chatId){
+                setName(notification.user);
+                setAlert(true);
+                setTimeout(() => {
+                    setAlert(false);
+                }, 10000);
+            } 
+            else if (notification.chatParticipants.some(participant => participant.user_id === userId)
+                     && notification.chatId !== chatId){
+                setName(notification.chatName);
+                setAlert(true);
+                setTimeout(() => {
+                    setAlert(false);
+                }, 10000);
+            }
+        }
+
         /**
          * Ensures that the scheduled message gets removed from the side panel
          * after it gets sent.
@@ -128,13 +148,16 @@ const Chat = ({socket, listUpdateFunc}) => {
         scrollToBottom();
 
         socket.on("receive_message", receiveMessage);
+        socket.on("notification", receiveNotification);
         socket.on("message_sent", handleMessageSent);
     
         // Cleanup function to remove the event listener
         return () => {
             socket.off("receive_message", receiveMessage);
+            socket.off("notification", receiveNotification);
             socket.off("message_sent", handleMessageSent);
         };
+        // eslint-disable-next-line
     }, [socket, userId, chatLog]);
 
     /**
@@ -404,6 +427,7 @@ const Chat = ({socket, listUpdateFunc}) => {
             file_name: messageData.file_name,
             chatName: messageData.chatName,
             chatType: messageData.chatType,
+            chatParticipants: chatParticipants,
             scheduledTime: scheduledTime, 
             status: 'pending'
         };
@@ -426,7 +450,6 @@ const Chat = ({socket, listUpdateFunc}) => {
      * Delivers the message over the socket to other users
      */
     const deliverMessage = async () => {
-
         //Checks if there are participants in chat, so the inital none chat doesnt work
         if (chatParticipants.length)
         {
@@ -455,7 +478,8 @@ const Chat = ({socket, listUpdateFunc}) => {
                 timestamp: formattedTimestamp,
                 chatId,
                 chatType,
-                chatName
+                chatName, 
+                chatParticipants
             }
 
             if (sendDelay === "Now") {
@@ -485,7 +509,6 @@ const Chat = ({socket, listUpdateFunc}) => {
     const handleKeyDown = (event) => {
         if (event.key === "Enter") {
             // preventing page reload
-            console.log("THIS IS CURRENT CHAT PARTI 2:"+chatParticipants);
             event.preventDefault();
             deliverMessage();
             handleFileDeselect(); 
@@ -684,6 +707,9 @@ const Chat = ({socket, listUpdateFunc}) => {
     // rendering the chat interface
     return (
         <div className="chat-room">
+            {alert && <div className='popup'>
+                <p>New message from {name}</p>
+            </div>}
             <ImageModal isOpen={isModalOpen} src={currentImageSrc} onClose={() => setIsModalOpen(false)} />
             <div className="chat-container">
                 <div className="chat-box">

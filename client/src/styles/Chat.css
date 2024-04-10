@@ -111,6 +111,16 @@ body {
 .send-button:hover {
   background-color: #0056b3;
 }
+
+.popup {
+  background-color: white;
+  border-radius: 20px;
+  position: absolute;
+  top: 10%;
+  right: 40%;
+  z-index: 1000;
+  padding: 10px;
+}
   
 .file-upload-button {
   padding: 8px 10px;
