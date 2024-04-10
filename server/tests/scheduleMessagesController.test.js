@@ -46,6 +46,17 @@ describe('scheduleMessagesController', () => {
       expect(db_con.query).toHaveBeenCalled();
       expect(res.json).toHaveBeenCalledWith({ success: true, messageId: mockInsertId });
     });
+
+    it('should handle database errors during message insertion', async () => {
+        req.body = { /* ... */ };
+        const mockError = new Error('DB insert error');
+        db_con.query.mockRejectedValueOnce(mockError);
+  
+        await insertScheduledMessages(req, res);
+  
+        expect(res.status).toHaveBeenCalledWith(500);
+        expect(res.send).toHaveBeenCalledWith("Internal Server Error");
+      });
   });
 
 
@@ -62,6 +73,18 @@ describe('scheduleMessagesController', () => {
       expect(db_con.query).toHaveBeenCalledWith(expect.any(String), [req.params.chatId]);
       expect(res.json).toHaveBeenCalledWith({ messages: mockResults });
     });
+
+    it('should handle database errors during message fetching', async () => {
+
+        req.params.chatId = '123';
+        const mockError = new Error('DB fetch error');
+        db_con.query.mockRejectedValueOnce(mockError);
+  
+        await getScheduledMessages(req, res);
+  
+        expect(res.status).toHaveBeenCalledWith(500);
+        expect(res.send).toHaveBeenCalledWith("Internal Server Error");
+      });
   });
 
 
@@ -90,5 +113,16 @@ describe('scheduleMessagesController', () => {
       expect(res.status).toHaveBeenCalledWith(404);
       expect(res.send).toHaveBeenCalledWith("Message not found or already sent.");
     });
+
+    it('should handle database errors during message deletion', async () => {
+        req.params.messageId = '1';
+        const mockError = new Error('DB delete error');
+        db_con.query.mockRejectedValueOnce(mockError);
+  
+        await deleteScheduledMessage(req, res);
+  
+        expect(res.status).toHaveBeenCalledWith(500);
+        expect(res.send).toHaveBeenCalledWith("Internal Server Error");
+      });
   });
 });
