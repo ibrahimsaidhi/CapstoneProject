@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "jest",
+    "test": "jest --coverage",
     "start": "nodemon index.js"
   },
   "author": "",
@@ -26,6 +26,7 @@
   },
   "devDependencies": {
     "jest": "^29.7.0",
+    "node-mocks-http": "^1.14.1",
     "supertest": "^6.3.4"
   }
 }
