@@ -1,5 +1,7 @@
 # Welcome to Parlons
 
+![Status Badge](https://github.com/ibrahimsaidhi/CapstoneProject/actions/workflows/node.js.yml/badge.svg)
+
 To access the application, click [here.](https://parlons-capstone.netlify.app/login)
 
 ## Description:
