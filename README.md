@@ -15,7 +15,7 @@ Parlons allows users to chat and interact with other existing users in a variety
 There are 5 tables in the schema that contain the users, all messages sent, all contacts, all chats, and all participants for each chat. The relations between each table are shown below in the ER diagram.
 ![image](https://github.com/ibrahimsaidhi/CapstoneProject/assets/91332979/889bde37-f084-4119-b154-57824f53fc8c)
 
-## Participants
+## Developers
 Yaw Asamoah,
 Yash Kapoor,
 Tao Lufula,
